@@ -1,0 +1,14 @@
+# environment.yml
+name: ktai_3
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - opencv
+  - numpy
+  - matplotlib
+  - pip
+  - pip:
+      - mediapipe # google mediapipe library not in conda-forge channel
+
+  
