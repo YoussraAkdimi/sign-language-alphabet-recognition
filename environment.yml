@@ -7,6 +7,7 @@ dependencies:
   - opencv
   - numpy
   - matplotlib
+  - scikit-learn
   - pip
   - pip:
       - mediapipe # google mediapipe library not in conda-forge channel
