@@ -1,6 +1,6 @@
 import cv2
 
-from modules.utilities.drawing import draw_landmarks_on_image
+from modules.utilities.drawing import draw_hand_landmarks_on_image
 
 class image_annotator:
     def __init__(self, camera_number):
@@ -20,6 +20,6 @@ class image_annotator:
 
         if detection_result is not None:
         # Draw landmarks on the original frame
-            image = draw_landmarks_on_image(image, detection_result)
+            image = draw_hand_landmarks_on_image(image, detection_result)
 
         return image

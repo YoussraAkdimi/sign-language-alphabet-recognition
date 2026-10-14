@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 # add three levels of folders to the system path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from modules.utilities.drawing import draw_landmarks_on_image
+from modules.utilities.drawing import draw_hand_landmarks_on_image
 
 MODEL_PATH: str = '././models/hand_landmarker.task'
 
@@ -28,7 +28,7 @@ detection_result = detector.detect(image)
 image_bgr = cv2.cvtColor(image.numpy_view(), cv2.COLOR_RGB2BGR)
 
 # STEP 5: Process the classification result. In this case, visualize it.
-annotated_image = draw_landmarks_on_image(
+annotated_image = draw_hand_landmarks_on_image(
     image_bgr,
     detection_result
 )

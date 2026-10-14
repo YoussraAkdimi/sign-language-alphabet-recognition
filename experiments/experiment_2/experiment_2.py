@@ -12,7 +12,7 @@ from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 import image_annotator
 
-from modules.utilities.drawing import draw_landmarks_on_image
+from modules.utilities.drawing import draw_hand_landmarks_on_image
 
 # get a list of the available cameras and check if there are any
 cameras = enumerate_cameras(cv2.CAP_AVFOUNDATION)
@@ -42,7 +42,7 @@ print("Camera opened:", cap.isOpened())
 
 image_annotator = image_annotator.image_annotator(camera_number=camera_index)
 
-while True:
+while cap.isOpened():
     ret, frame = cap.read()
     if not ret:
         break
@@ -61,5 +61,10 @@ while True:
     # Display the annotated frame
     cv2.imshow('Video capture', annotated_frame)
 
+    # wait for the 'q' key to be pressed to exit the loop
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+# some cleanup code to release the camera and close the window
+cap.release()
+cv2.destroyAllWindows()
