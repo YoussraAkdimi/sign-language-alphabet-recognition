@@ -8,6 +8,7 @@ dependencies:
   - numpy
   - matplotlib
   - scikit-learn
+  - cv2-enumerate-cameras
   - pip
   - pip:
       - mediapipe # google mediapipe library not in conda-forge channel
