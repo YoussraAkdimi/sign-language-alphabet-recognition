@@ -10,9 +10,12 @@ import cv2
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
-from image_annotator_2 import image_annotator_2
-
+#from image_annotator_2 import image_annotator_2
 from modules.utilities.drawing import draw_holistic_landmarks_on_image
+
+#----
+from modules.image_annotators import CompositeAnnotator, AnnotatorTypes
+
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
@@ -41,6 +44,7 @@ VisionRunningMode = mp.tasks.vision.RunningMode
 options = HolisticLandmarkerOptions(
     base_options=BaseOptions(model_asset_path=MODEL_PATH),
     running_mode=VisionRunningMode.VIDEO,
+    output_face_blendshapes=True,
     min_face_detection_confidence=0.5,
     min_pose_detection_confidence=0.5,
     min_hand_landmarks_confidence=0.5)
@@ -49,7 +53,7 @@ cap = cv2.VideoCapture(camera_index, cv2.CAP_AVFOUNDATION)
 
 print("Camera opened:", cap.isOpened())
 
-image_annotator = image_annotator_2(camera_number=camera_index)
+image_annotator = CompositeAnnotator.default_annotator()
 
 timestamp_ms = 0
 
@@ -60,7 +64,7 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             break
         
         image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
+        
         # Create a MediaPipe image from the RGB frame
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
 
@@ -71,17 +75,24 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             timestamp_ms
         )
 
+        # if detection_result and detection_result.face_blendshapes:
+        #     for category in detection_result.face_blendshapes:
+        #         print(f"Category: {category.category_name}, Score: {category.score}")
+
         timestamp_ms += 33  # Approximately 30 FPS
 
         # annotate the frame with camera number and landmarks
-        annotated_frame = image_annotator.annotate(frame, detection_result=detection_result)  # Annotate the frame with camera number
+        annotated_frame = image_annotator.annotate_image(frame, detection_result=detection_result)  # Annotate the frame with camera number
 
         # Display the annotated frame
         cv2.imshow('Video capture', annotated_frame)
 
-        # wait for the 'q' key to be pressed to exit the loop
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == ord('q'):
             break
+        elif not image_annotator.handle_key_press(key):
+            pass
 
 # some cleanup code to release the camera and close the window
 cap.release()
