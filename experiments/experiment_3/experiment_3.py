@@ -12,10 +12,24 @@ from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 #from image_annotator_2 import image_annotator_2
 from modules.utilities.drawing import draw_holistic_landmarks_on_image
+from modules.dto import CaptureContext
+from modules.image_annotators import CompositeAnnotator
+import time
 
-#----
-from modules.image_annotators import CompositeAnnotator, AnnotatorTypes
+def switch_camera(cap, cameras, current_position):
+    old_camera_index = cameras[current_position].index
+    next_position = (current_position + 1) % len(cameras)
+    next_camera_index = cameras[next_position].index
 
+    # Release the old camera first
+    cap.release()
+
+    new_cap = cv2.VideoCapture(
+        next_camera_index,
+        cv2.CAP_AVFOUNDATION
+    )
+
+    return new_cap, next_position
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
@@ -34,7 +48,7 @@ else:
     exit(1)
 
 # choose the first camera in the list (index 0) for video capture
-camera_index = cameras[0].index
+camera_index = 1 #cameras[0].index
 
 BaseOptions = mp.tasks.BaseOptions
 HolisticLandmarker = mp.tasks.vision.HolisticLandmarker
@@ -55,42 +69,41 @@ print("Camera opened:", cap.isOpened())
 
 image_annotator = CompositeAnnotator.default_annotator()
 
-timestamp_ms = 0
+capture_context = CaptureContext(camera_index)
 
 with HolisticLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():
         ret, frame = cap.read()
         if not ret:
-            break
-        
-        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Create a MediaPipe image from the RGB frame
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
+            print("Failed to grab frame")
+        else:
+            image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            
+            # Create a MediaPipe image from the RGB frame
+            mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
 
-        # Detect hand landmarks
-   
-        detection_result = landmarker.detect_for_video(
-            mp_image,
-            timestamp_ms
-        )
+            # Detect hand landmarks
+    
+            detection_result = landmarker.detect_for_video(
+                mp_image,
+                capture_context.timestamp_ms
+            )
 
-        # if detection_result and detection_result.face_blendshapes:
-        #     for category in detection_result.face_blendshapes:
-        #         print(f"Category: {category.category_name}, Score: {category.score}")
+            capture_context.timestamp_ms += 33  # Approximately 30 FPS
+            capture_context.detection_result = detection_result
 
-        timestamp_ms += 33  # Approximately 30 FPS
+            # annotate the frame with camera number and landmarks
+            annotated_frame = image_annotator.annotate_image(frame, capture_context=capture_context)  # Annotate the frame with camera number
 
-        # annotate the frame with camera number and landmarks
-        annotated_frame = image_annotator.annotate_image(frame, detection_result=detection_result)  # Annotate the frame with camera number
-
-        # Display the annotated frame
-        cv2.imshow('Video capture', annotated_frame)
+            # Display the annotated frame
+            cv2.imshow('Video capture', annotated_frame)
 
         key = cv2.waitKey(1) & 0xFF
 
         if key == ord('q'):
             break
+        if key == ord('c'):
+            cap, camera_index = switch_camera(cap, cameras, camera_index)
         elif not image_annotator.handle_key_press(key):
             pass
 

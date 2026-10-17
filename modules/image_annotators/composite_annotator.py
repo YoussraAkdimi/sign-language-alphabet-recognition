@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from enum import Enum
+from modules.dto import CaptureContext
 from modules.image_annotators.info_annotator import InfoAnnotator
-from ..protocols import ImageAnnotator
+from modules.protocols import ImageAnnotator
+
 import cv2.typing as cv2Typing
  # import like this otherwise type annotation fails
 from mediapipe.tasks.python.vision.holistic_landmarker import (
@@ -23,10 +25,10 @@ class CompositeAnnotator:
     def add_annotator(self, annotator: ImageAnnotator, enabled: bool = True) -> None:
         self.__annotators[annotator] = enabled
 
-    def annotate_image(self, current_image: cv2Typing.MatLike, detection_result: HolisticLandmarkerResult) -> cv2Typing.MatLike:
+    def annotate_image(self, current_image: cv2Typing.MatLike, capture_context: CaptureContext) -> cv2Typing.MatLike:
         for annotator, enabled in self.__annotators.items():
             if enabled:
-                current_image = annotator.annotate_image(current_image, detection_result)
+                current_image = annotator.annotate_image(current_image, capture_context)
         
         return current_image
 

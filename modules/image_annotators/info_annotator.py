@@ -1,5 +1,6 @@
 import cv2
 
+from modules.dto import CaptureContext
 from modules.utilities.drawing import draw_holistic_landmarks_on_image
 from mediapipe.tasks.python.vision.holistic_landmarker import ( # otherwise type annotation fails
     HolisticLandmarkerResult,
@@ -9,7 +10,7 @@ class InfoAnnotator:
     def __init__(self):
         pass
 
-    def annotate_image(self, image: cv2.typing.MatLike, detection_result: HolisticLandmarkerResult) -> cv2.typing.MatLike:
+    def annotate_image(self, image: cv2.typing.MatLike, capture_context: CaptureContext) -> cv2.typing.MatLike:
 
         cv2.putText(image,                      # Image (NumPy array)
             f"Press 'q' to quit\nPress 'l' to toggle landmarks\nPress 'f' to toggle face blendshapes",                 # Text

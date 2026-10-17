@@ -1,13 +1,17 @@
 from typing import Protocol
 
 import cv2.typing as cv2Typing
-from mediapipe.tasks.python.vision import HolisticLandmarkerResult
+from ..dto import CaptureContext
+
+# from mediapipe.tasks.python.vision.holistic_landmarker import (
+#     HolisticLandmarkerResult,
+# )
 
 class ImageAnnotator(Protocol):
     """Writes contextual information onto an existing image, 
     e.g. camera number or detected landmarks.
     """
-    def annotate_image(self, current_image: cv2Typing.MatLike, detection_result: HolisticLandmarkerResult) -> cv2Typing.MatLike:
+    def annotate_image(self, current_image: cv2Typing.MatLike, capture_context: CaptureContext) -> cv2Typing.MatLike:
         """Writes contextual information onto an existing image, 
         e.g. camera number or detected landmarks.
         
@@ -18,4 +22,5 @@ class ImageAnnotator(Protocol):
             The annotated image.
         """
         ...
+
 

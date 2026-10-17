@@ -5,6 +5,8 @@ from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
 )
 
+from modules.dto import CaptureContext
+
 
 class FaceBlendshapesAnnotator:
     def __init__(self, panel_width: int = 350):
@@ -13,7 +15,7 @@ class FaceBlendshapesAnnotator:
     def annotate_image(
         self,
         image: cv2.typing.MatLike,
-        detection_result: HolisticLandmarkerResult,
+        capture_context: CaptureContext,
     ) -> cv2.typing.MatLike:
 
         height, width = image.shape[:2]
@@ -37,12 +39,12 @@ class FaceBlendshapesAnnotator:
             cv2.LINE_AA,
         )
 
-        if detection_result and detection_result.face_blendshapes:
-            categories = detection_result.face_blendshapes
+        if capture_context.detection_result and capture_context.detection_result.face_blendshapes:
+            categories = capture_context.detection_result.face_blendshapes
 
             categories = sorted(
                 categories,
-                key=lambda category: category.score,
+                key=lambda category: category.category_name,
                 reverse=True,
             )
 
