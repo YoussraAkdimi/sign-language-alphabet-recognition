@@ -12,20 +12,17 @@ class CameraAnnotator:
 
     def annotate_image(self, image: cv2.typing.MatLike, capture_context: CaptureContext) -> cv2.typing.MatLike:
 
-        # cv2.putText(image,                      # Image (NumPy array)
-        #     f"Camera {self.camera_number}\nPress 'q' to quit",                 # Text
-        #     (20, 40),                   # Position (x, y)
-        #     cv2.FONT_HERSHEY_SIMPLEX,   # Font
-        #     1,                          # Font scale
-        #     (0, 255, 0),                # Color (B, G, R): green
-        #     2,                          # Thickness
-        #     cv2.LINE_AA                 # Anti-aliasing
-        # )
+        height, width = image.shape[:2]
 
-        # Draw pose landmarks if there are any detected
-        if capture_context.detection_result and capture_context.detection_result.pose_landmarks:
-            image = draw_holistic_landmarks_on_image(
-                image, capture_context.detection_result
-            )
+        cv2.putText(
+            image,
+            f"{capture_context.camera_name}",
+            (20, height - 20),  # Bottom-left, 20 px from the edges
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1,
+            (0, 255, 0),
+            2,
+            cv2.LINE_AA
+        )
 
         return image

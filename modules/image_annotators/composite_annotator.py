@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from enum import Enum
 from modules.dto import CaptureContext
+from modules.image_annotators.camera_annotator import CameraAnnotator
 from modules.image_annotators.info_annotator import InfoAnnotator
 from modules.protocols import ImageAnnotator
 
@@ -14,6 +15,7 @@ from .holistic_landmark_annotator import HolisticLandmarkAnnotator
 from .face_blendshapes_annotator import FaceBlendshapesAnnotator
 
 class AnnotatorTypes(Enum):
+    CAMERA_ANNOTATOR = CameraAnnotator
     HOLISTIC_LANDMARK_ANNOTATOR = HolisticLandmarkAnnotator
     FACE_BLENDSHAPES_ANNOTATOR = FaceBlendshapesAnnotator
     INFO_ANNOTATOR = InfoAnnotator

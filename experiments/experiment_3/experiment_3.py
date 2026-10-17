@@ -10,45 +10,22 @@ import cv2
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
-#from image_annotator_2 import image_annotator_2
-from modules.utilities.drawing import draw_holistic_landmarks_on_image
+from modules.utilities import CameraManager
 from modules.dto import CaptureContext
 from modules.image_annotators import CompositeAnnotator
 import time
 
-def switch_camera(cap, cameras, current_position):
-    old_camera_index = cameras[current_position].index
-    next_position = (current_position + 1) % len(cameras)
-    next_camera_index = cameras[next_position].index
 
-    # Release the old camera first
-    cap.release()
-
-    new_cap = cv2.VideoCapture(
-        next_camera_index,
-        cv2.CAP_AVFOUNDATION
-    )
-
-    return new_cap, next_position
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
 print(f"MediaPipe version: {mp.__version__}")
 
-# get a list of the available cameras and check if there are any
-cameras = enumerate_cameras(cv2.CAP_AVFOUNDATION)
+camera_manager = CameraManager()
 
-if len(cameras) > 0:
-    print(f"Found {len(cameras)} camera(s).")
-
-    for camera in cameras:
-        print(f"Index: {camera.index}, Name: {camera.name}")
-else:
+if not camera_manager.has_cameras:
     print("No cameras found.")
     exit(1)
-
-# choose the first camera in the list (index 0) for video capture
-camera_index = 1 #cameras[0].index
 
 BaseOptions = mp.tasks.BaseOptions
 HolisticLandmarker = mp.tasks.vision.HolisticLandmarker
@@ -63,13 +40,14 @@ options = HolisticLandmarkerOptions(
     min_pose_detection_confidence=0.5,
     min_hand_landmarks_confidence=0.5)
 
-cap = cv2.VideoCapture(camera_index, cv2.CAP_AVFOUNDATION)
 
-print("Camera opened:", cap.isOpened())
+#print("Camera opened:", cap.isOpened())
 
 image_annotator = CompositeAnnotator.default_annotator()
 
-capture_context = CaptureContext(camera_index)
+cap, _, camera_name = camera_manager.start_camera()
+
+capture_context = CaptureContext(camera_name)
 
 with HolisticLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():
@@ -103,10 +81,11 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
         if key == ord('q'):
             break
         if key == ord('c'):
-            cap, camera_index = switch_camera(cap, cameras, camera_index)
+            cap, _, camera_name = camera_manager.start_camera(camera_manager.next_camera_index)
+            capture_context.camera_name = camera_name
         elif not image_annotator.handle_key_press(key):
             pass
 
 # some cleanup code to release the camera and close the window
-cap.release()
+camera_manager.release()
 cv2.destroyAllWindows()
