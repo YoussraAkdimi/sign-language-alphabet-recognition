@@ -9,9 +9,11 @@ from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
 )
 from .holistic_landmark_annotator import HolisticLandmarkAnnotator
+from .face_blendshapes_annotator import FaceBlendshapesAnnotator
 
 class AnnotatorTypes(Enum):
     HOLISTIC_LANDMARK_ANNOTATOR = HolisticLandmarkAnnotator
+    FACE_BLENDSHAPES_ANNOTATOR = FaceBlendshapesAnnotator
     INFO_ANNOTATOR = InfoAnnotator
     
 class CompositeAnnotator:
@@ -34,7 +36,10 @@ class CompositeAnnotator:
         if key == ord('l'):
             self.toggle_annotator(AnnotatorTypes.HOLISTIC_LANDMARK_ANNOTATOR)
             return True
-
+        elif key == ord('f'):
+            self.toggle_annotator(AnnotatorTypes.FACE_BLENDSHAPES_ANNOTATOR)
+            return True
+        
         # Key not handled
         return False
 

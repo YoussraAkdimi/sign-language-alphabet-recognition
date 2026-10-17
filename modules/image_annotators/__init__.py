@@ -1,5 +1,6 @@
 from .composite_annotator import CompositeAnnotator, AnnotatorTypes
 from .holistic_landmark_annotator import HolisticLandmarkAnnotator
 from .info_annotator import InfoAnnotator
+from .face_blendshapes_annotator import FaceBlendshapesAnnotator
 
-__all__ = ["CompositeAnnotator", "AnnotatorTypes", "HolisticLandmarkAnnotator", "InfoAnnotator"]
+__all__ = ["CompositeAnnotator", "AnnotatorTypes", "HolisticLandmarkAnnotator", "InfoAnnotator", "FaceBlendshapesAnnotator"]

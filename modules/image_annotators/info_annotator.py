@@ -12,7 +12,7 @@ class InfoAnnotator:
     def annotate_image(self, image: cv2.typing.MatLike, detection_result: HolisticLandmarkerResult) -> cv2.typing.MatLike:
 
         cv2.putText(image,                      # Image (NumPy array)
-            f"Press 'q' to quit\nPress 'l' to toggle landmarks",                 # Text
+            f"Press 'q' to quit\nPress 'l' to toggle landmarks\nPress 'f' to toggle face blendshapes",                 # Text
             (20, 40),                   # Position (x, y)
             cv2.FONT_HERSHEY_SIMPLEX,   # Font
             1,                          # Font scale
