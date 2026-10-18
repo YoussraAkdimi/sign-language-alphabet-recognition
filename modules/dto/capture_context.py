@@ -1,3 +1,5 @@
+import time
+
 import cv2.typing as cv2Typing
 from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
@@ -11,7 +13,7 @@ class CaptureContext:
 
     def __init__(self, camera_name: str):
         self._camera_name = camera_name
-        self._timestamp_ms = 0
+        self._start_time = None
         self._detection_result = None
 
     @property
@@ -62,14 +64,8 @@ class CaptureContext:
         Returns:
             The current timestamp in milliseconds.
         """
-        return self._timestamp_ms
-
-    @timestamp_ms.setter
-    def timestamp_ms(self, value: int) -> None:
-        """
-        Set the current timestamp in milliseconds.
-
-        Args:
-            value: The new timestamp in milliseconds.
-        """
-        self._timestamp_ms = value
+        if self._start_time is None:
+            self._start_time = time.perf_counter()
+            return 0
+        else:
+            return int((time.perf_counter() - self._start_time) * 1000)

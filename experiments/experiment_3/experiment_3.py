@@ -61,13 +61,11 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
 
             # Detect hand landmarks
-    
             detection_result = landmarker.detect_for_video(
                 mp_image,
                 capture_context.timestamp_ms
             )
 
-            capture_context.timestamp_ms += 33  # Approximately 30 FPS
             capture_context.detection_result = detection_result
 
             # annotate the frame with camera number and landmarks
