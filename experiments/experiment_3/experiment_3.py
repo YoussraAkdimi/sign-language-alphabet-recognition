@@ -7,15 +7,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from matplotlib import image
 import mediapipe as mp
 import cv2
+import numpy as np
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
 from modules.dto import CaptureContext
 from modules.image_annotators import CompositeAnnotator
-import time
-
-
+from modules.detection_result_converters import HolisticLandmarkerConverter
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
@@ -41,13 +40,12 @@ options = HolisticLandmarkerOptions(
     min_hand_landmarks_confidence=0.5)
 
 
-#print("Camera opened:", cap.isOpened())
-
 image_annotator = CompositeAnnotator.default_annotator()
 
 cap, _, camera_name = camera_manager.start_camera()
 
 capture_context = CaptureContext(camera_name)
+data_converter = HolisticLandmarkerConverter()
 
 with HolisticLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():
@@ -70,6 +68,14 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
 
             # annotate the frame with camera number and landmarks
             annotated_frame = image_annotator.annotate_image(frame, capture_context=capture_context)  # Annotate the frame with camera number
+
+            converted_data: np.array = data_converter.convert(capture_context.detection_result)
+
+            print(converted_data.shape)
+
+            # if (capture_context.timestamp_ms > 4000):
+            #     print(converted_data)
+            #     exit(0)
 
             # Display the annotated frame
             cv2.imshow('Video capture', annotated_frame)

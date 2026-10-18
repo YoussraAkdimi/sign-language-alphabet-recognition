@@ -1,11 +1,8 @@
-from typing import Protocol
-
+from typing import Protocol, TYPE_CHECKING
 import cv2.typing as cv2Typing
-from ..dto import CaptureContext
 
-# from mediapipe.tasks.python.vision.holistic_landmarker import (
-#     HolisticLandmarkerResult,
-# )
+# if TYPE_CHECKING:
+from ..dto.capture_context import CaptureContext
 
 class ImageAnnotator(Protocol):
     """Writes contextual information onto an existing image, 
@@ -23,4 +20,14 @@ class ImageAnnotator(Protocol):
         """
         ...
 
-
+class DetectionResultToDataConverter(Protocol):
+    """Converts a detection result into a data structure suitable for further processing or analysis."""
+    def convert(self, detection_result) -> dict:
+        """Converts a detection result into a data structure suitable for further processing or analysis.
+        
+        Args:
+            detection_result: The result of the detection, which may contain landmarks or other information to convert.
+        Returns:
+            A dictionary containing the converted data.
+        """
+        ...

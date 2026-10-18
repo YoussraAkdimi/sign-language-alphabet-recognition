@@ -1,6 +1,7 @@
 import time
 
-import cv2.typing as cv2Typing
+#import cv2.typing as cv2Typing
+
 from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
 )

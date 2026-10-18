@@ -2,9 +2,6 @@ import cv2
 
 from modules.dto import CaptureContext
 from modules.utilities.drawing import draw_holistic_landmarks_on_image
-# from mediapipe.tasks.python.vision.holistic_landmarker import ( # otherwise type annotation fails
-#     HolisticLandmarkerResult,
-# )
 
 class CameraAnnotator:
     def __init__(self):
