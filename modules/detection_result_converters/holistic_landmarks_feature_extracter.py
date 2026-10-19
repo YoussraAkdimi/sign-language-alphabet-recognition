@@ -58,8 +58,6 @@ class HolisticLandmarksFeatureExtracter:
         pose_data = self._get_flattened_landmark_data(detection_result.pose_landmarks, self._no_pose_data)
         face_data = self._get_flattened_landmark_data(detection_result.face_landmarks, self._no_face_data)
 
-        print(f"face = {len(face_data)}")
-
         return np.concat([lh_data, rh_data, pose_data, face_data])
 
     def _get_flattened_landmark_data(self, landmarks: list[NormalizedLandmark], default_data: list[float]) -> np.ndarray:

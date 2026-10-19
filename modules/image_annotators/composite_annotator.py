@@ -4,6 +4,10 @@ from enum import Enum
 from modules.dto import CaptureContext
 from modules.image_annotators.camera_annotator import CameraAnnotator
 from modules.image_annotators.info_annotator import InfoAnnotator
+from modules.image_annotators.training_annotator import TrainingAnnotator
+from modules.image_annotators.holistic_landmark_annotator import HolisticLandmarkAnnotator
+from modules.image_annotators.face_blendshapes_annotator import FaceBlendshapesAnnotator
+
 from modules.protocols import ImageAnnotator
 
 import cv2.typing as cv2Typing
@@ -11,14 +15,13 @@ import cv2.typing as cv2Typing
 from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
 )
-from .holistic_landmark_annotator import HolisticLandmarkAnnotator
-from .face_blendshapes_annotator import FaceBlendshapesAnnotator
 
 class AnnotatorTypes(Enum):
     CAMERA_ANNOTATOR = CameraAnnotator
     HOLISTIC_LANDMARK_ANNOTATOR = HolisticLandmarkAnnotator
     FACE_BLENDSHAPES_ANNOTATOR = FaceBlendshapesAnnotator
     INFO_ANNOTATOR = InfoAnnotator
+    TRAINING_ANNOTATOR = TrainingAnnotator
     
 class CompositeAnnotator:
     def __init__(self):
