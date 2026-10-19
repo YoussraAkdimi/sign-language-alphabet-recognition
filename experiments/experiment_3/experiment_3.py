@@ -1,7 +1,8 @@
 import sys
 from pathlib import Path
 
-# add three levels of folders to the system path
+# add three levels of folders to the system path so that
+# we can resolve modules from other paths
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from matplotlib import image
@@ -45,7 +46,7 @@ image_annotator = CompositeAnnotator.default_annotator()
 cap, _, camera_name = camera_manager.start_camera()
 
 capture_context = CaptureContext(camera_name)
-data_converter = HolisticLandmarksFeatureExtracter()
+feature_extracter = HolisticLandmarksFeatureExtracter()
 
 with HolisticLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():
@@ -69,10 +70,12 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             # annotate the frame with camera number and landmarks
             annotated_frame = image_annotator.annotate_image(frame, capture_context=capture_context)  # Annotate the frame with camera number
 
-            converted_data: np.array = data_converter.convert(capture_context.detection_result)
+            features: np.array = feature_extracter.extract(capture_context.detection_result)
 
-            print(converted_data.shape)
+            # Check that the returned number of features is the required length
+            assert(len(features) == feature_extracter.feature_length)
 
+            print(features.shape)
             # if (capture_context.timestamp_ms > 4000):
             #     print(converted_data)
             #     exit(0)

@@ -1,3 +1,5 @@
+from typing import ClassVar
+
 import numpy as np
 from enum import Enum
 from mediapipe.tasks.python.vision.holistic_landmarker import ( # otherwise type annotation fails
@@ -8,7 +10,16 @@ from mediapipe.tasks.python.components.containers.landmark import (
 )
 
 class HolisticLandmarksFeatureExtracter:
+    
+    # Left hand   21 * x * y * z =   63 values
+    # Right hand  21 * x * y * z =   63 values
+    # Pose        33 * x * y * z =   99 values
+    # Face       478 * x * y * z = 1434 values
+    #                              ----------- +
+    #                              1659 values
 
+    feature_length: ClassVar[int] = 1659
+    
     class DataDimensions(Enum):
         LEFT_HAND = 21
         RIGHT_HAND = 21
@@ -25,7 +36,7 @@ class HolisticLandmarksFeatureExtracter:
     A class that converts a HolisticLandmarkerResult into a dictionary containing the relevant data.
     """
 
-    def convert(self, detection_result: HolisticLandmarkerResult) -> dict:
+    def extract(self, detection_result: HolisticLandmarkerResult) -> np.ndarray:
         """
         Converts a HolisticLandmarkerResult into a dictionary containing the relevant data.
 
@@ -47,7 +58,9 @@ class HolisticLandmarksFeatureExtracter:
         pose_data = self._get_flattened_landmark_data(detection_result.pose_landmarks, self._no_pose_data)
         face_data = self._get_flattened_landmark_data(detection_result.face_landmarks, self._no_face_data)
 
-        return np.concat((lh_data, rh_data, pose_data, face_data))
+        print(f"face = {len(face_data)}")
+
+        return np.concat([lh_data, rh_data, pose_data, face_data])
 
     def _get_flattened_landmark_data(self, landmarks: list[NormalizedLandmark], default_data: list[float]) -> np.ndarray:
         flattened_data = (

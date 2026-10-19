@@ -1,5 +1,6 @@
-from typing import Protocol, TYPE_CHECKING
+from typing import ClassVar, Protocol, TYPE_CHECKING
 import cv2.typing as cv2Typing
+import numpy as np
 
 # if TYPE_CHECKING:
 from ..dto.capture_context import CaptureContext
@@ -20,9 +21,11 @@ class ImageAnnotator(Protocol):
         """
         ...
 
-class DetectionResultToDataConverter(Protocol):
+class ExtractFeaturesFromDetectionResult(Protocol):
+    feature_length: ClassVar[int]
+    
     """Converts a detection result into a data structure suitable for further processing or analysis."""
-    def convert(self, detection_result) -> dict:
+    def extract(self, detection_result) -> np.ndarray:
         """Converts a detection result into a data structure suitable for further processing or analysis.
         
         Args:
