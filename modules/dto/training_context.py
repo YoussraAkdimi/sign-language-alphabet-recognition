@@ -7,6 +7,7 @@ class TrainingContext(CaptureContext):
         self._action = None
         self._sequence = 0
         self._frame = 0
+        self._countdown_value = 0
 
     @property
     def action(self) -> str:
@@ -66,4 +67,12 @@ class TrainingContext(CaptureContext):
         Args:
             value: The new frame of the action.
         """
-        self._frame = value        
+        self._frame = value     
+
+    @property
+    def countdown_value(self) -> int | None:
+        return self._countdown_value
+
+    @countdown_value.setter
+    def countdown_value(self, value: int) -> None:
+        self._countdown_value = value

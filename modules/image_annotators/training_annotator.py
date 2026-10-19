@@ -24,7 +24,6 @@ class TrainingAnnotator:
             # locate the center of the screen
             x = (width - text_width) // 2
             y = 40
-            #y = (height + text_height) // 2
 
             cv2.putText(
                 image,
@@ -36,5 +35,28 @@ class TrainingAnnotator:
                 thickness,
                 cv2.LINE_AA,
             )
+
+            if capture_context.countdown_value > 0:
+                text = str(capture_context.countdown_value)
+                font_scale = 10
+
+                (text_width, text_height), baseline = cv2.getTextSize(
+                    text, font, font_scale, thickness
+                )
+
+                # locate the center of the screen
+                x = (width - text_width) // 2
+                y = (height + text_height) // 2
+
+                cv2.putText(
+                    image,
+                    text,
+                    (x, y),
+                    font,
+                    font_scale,
+                    (0, 255, 0),
+                    thickness,
+                    cv2.LINE_AA,
+                )
 
         return image

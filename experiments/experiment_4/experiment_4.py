@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import time
 
 # add three levels of folders to the system path so that
 # we can resolve modules from other paths
@@ -16,6 +17,28 @@ from modules.utilities import CameraManager
 from modules.dto import TrainingContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
+
+def capture_video_data(capture_device, context):
+    ret, frame = capture_device.read()
+    if not ret:
+        print("Failed to grab frame")
+    else:
+        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Create a MediaPipe image from the RGB frame
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
+
+        # Detect hand landmarks
+        context.detection_result = landmarker.detect_for_video(
+            mp_image,
+            capture_context.timestamp_ms
+        )
+
+        # annotate the frame with camera number and landmarks
+        annotated_frame = image_annotator.annotate_image(frame, capture_context=context)  # Annotate the frame with camera number
+
+        # Display the annotated frame
+        cv2.imshow('Video capture', annotated_frame)
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 DATA_PATH: Path = Path('./mp_data')
@@ -71,27 +94,26 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             if not continue_processing:
                 break
 
+            # Countdown before capturing the sequence
+            countdown_seconds = 3
+            for remaining in range(countdown_seconds, 0, -1):
+                capture_context.countdown_value = remaining
+                start_time = time.time()
+
+                while time.time() - start_time < 1:
+                    capture_video_data(cap, capture_context)
+                    key = cv2.waitKey(1) & 0xFF
+
+                    if key == ord('q'):
+                        continue_processing = False
+                        break
+
+            capture_context.countdown_value = 0
+            
+            # start capturing
             for capture_context.frame in range(sequence_length):
 
-                ret, frame = cap.read()
-                if not ret:
-                    print("Failed to grab frame")
-                else:
-                    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                    
-                    # Create a MediaPipe image from the RGB frame
-                    mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
-
-                    # Detect hand landmarks
-                    detection_result = landmarker.detect_for_video(
-                        mp_image,
-                        capture_context.timestamp_ms
-                    )
-
-                    capture_context.detection_result = detection_result
-
-                    # annotate the frame with camera number and landmarks
-                    annotated_frame = image_annotator.annotate_image(frame, capture_context=capture_context)  # Annotate the frame with camera number
+                    capture_video_data(cap, capture_context)
 
                     features: np.array = feature_extracter.extract(capture_context.detection_result)
 
@@ -101,9 +123,6 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
                     # if (capture_context.timestamp_ms > 4000):
                     #     print(converted_data)
                     #     exit(0)
-
-                    # Display the annotated frame
-                    cv2.imshow('Video capture', annotated_frame)
 
                     key = cv2.waitKey(1) & 0xFF
 
