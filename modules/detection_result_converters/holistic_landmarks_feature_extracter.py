@@ -7,7 +7,7 @@ from mediapipe.tasks.python.components.containers.landmark import (
     NormalizedLandmark,
 )
 
-class HolisticLandmarkerConverter:
+class HolisticLandmarksFeatureExtracter:
 
     class DataDimensions(Enum):
         LEFT_HAND = 21

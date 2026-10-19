@@ -14,7 +14,7 @@ from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
 from modules.dto import CaptureContext
 from modules.image_annotators import CompositeAnnotator
-from modules.detection_result_converters import HolisticLandmarkerConverter
+from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
@@ -45,7 +45,7 @@ image_annotator = CompositeAnnotator.default_annotator()
 cap, _, camera_name = camera_manager.start_camera()
 
 capture_context = CaptureContext(camera_name)
-data_converter = HolisticLandmarkerConverter()
+data_converter = HolisticLandmarksFeatureExtracter()
 
 with HolisticLandmarker.create_from_options(options) as landmarker:
     while cap.isOpened():

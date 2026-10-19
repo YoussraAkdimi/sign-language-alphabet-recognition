@@ -1,3 +1,3 @@
-from .holistic_landmarker_converter import HolisticLandmarkerConverter
+from .holistic_landmarks_feature_extracter import HolisticLandmarksFeatureExtracter
 
-__all__ = ["HolisticLandmarkerConverter"]
+__all__ = ["HolisticLandmarksFeatureExtracter"]
