@@ -14,6 +14,10 @@ FONT_THICKNESS = 1
 HANDEDNESS_TEXT_COLOR = (88, 205, 54) # vibrant green
 
 def draw_holistic_landmarks_on_image(rgb_image, detection_result):
+    # pose_landmarks = detection_result["pose_landmarks"]
+    # face_landmarks = detection_result["face_landmarks"]
+    # left_hand_landmarks = detection_result["left_hand_landmarks"]
+    # right_hand_landmarks = detection_result["right_hand_landmarks"]    
     pose_landmarks = detection_result.pose_landmarks
     face_landmarks = detection_result.face_landmarks
     left_hand_landmarks = detection_result.left_hand_landmarks

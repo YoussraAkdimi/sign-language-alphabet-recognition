@@ -102,6 +102,10 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
                     #     print(converted_data)
                     #     exit(0)
 
+                    # save the features in a file
+                    npy_path = file_path = DATA_PATH / capture_context.action / str(capture_context.sequence) / str(capture_context.frame)
+                    np.save(npy_path, features)
+
                     key = cv2.waitKey(1) & 0xFF
 
                     if key == ord('q'):
