@@ -55,7 +55,7 @@ MODEL_PATH: str = '././models/holistic_landmarker.task'
 DATA_PATH: Path = Path('./mp_data')
 
 actions = np.array(['hello', 'thanks', 'iloveyou' ])
-no_sequences = 30    # 30 videos worth of data
+no_sequences = 5    # 30 videos worth of data
 sequence_length = 30 # use 30 frames for an action
 
 continue_playing = True

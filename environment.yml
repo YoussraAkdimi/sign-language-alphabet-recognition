@@ -4,13 +4,16 @@ channels:
   - conda-forge
 dependencies:
   - python=3.12
-  - opencv
   - numpy
   - matplotlib
   - scikit-learn
   - cv2-enumerate-cameras
+  - certifi
   - pip
   - pip:
-      - mediapipe # google mediapipe library not in conda-forge channel
+      - opencv-contrib-python
+      - mediapipe
+      - tensorflow
+      - tensorboard
 
   
