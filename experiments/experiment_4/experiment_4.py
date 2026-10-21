@@ -17,28 +17,7 @@ from modules.utilities import CameraManager
 from modules.dto import TrainingContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
-
-def capture_video_data(capture_device, context):
-    ret, frame = capture_device.read()
-    if not ret:
-        print("Failed to grab frame")
-    else:
-        image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        
-        # Create a MediaPipe image from the RGB frame
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=image_rgb)
-
-        # Detect hand landmarks
-        context.detection_result = landmarker.detect_for_video(
-            mp_image,
-            capture_context.timestamp_ms
-        )
-
-        # annotate the frame with camera number and landmarks
-        annotated_frame = image_annotator.annotate_image(frame, capture_context=context)  # Annotate the frame with camera number
-
-        # Display the annotated frame
-        cv2.imshow('Video capture', annotated_frame)
+from modules.logic.video_loop import capture_video_data
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 DATA_PATH: Path = Path('./mp_data')
@@ -75,7 +54,6 @@ options = HolisticLandmarkerOptions(
     min_pose_detection_confidence=0.5,
     min_hand_landmarks_confidence=0.5)
 
-
 image_annotator = CompositeAnnotator.default_annotator()
 
 cap, _, camera_name = camera_manager.start_camera()
@@ -101,7 +79,7 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
                 start_time = time.time()
 
                 while time.time() - start_time < 1:
-                    capture_video_data(cap, capture_context)
+                    capture_video_data(cap, landmarker, image_annotator, capture_context)
                     key = cv2.waitKey(1) & 0xFF
 
                     if key == ord('q'):
@@ -113,7 +91,7 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             # start capturing
             for capture_context.frame in range(sequence_length):
 
-                    capture_video_data(cap, capture_context)
+                    capture_video_data(cap, landmarker, image_annotator, capture_context)
 
                     features: np.array = feature_extracter.extract(capture_context.detection_result)
 
