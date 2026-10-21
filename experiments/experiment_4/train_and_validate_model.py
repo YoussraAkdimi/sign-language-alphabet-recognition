@@ -12,6 +12,7 @@ from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Input, LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
+from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 
 DATA_PATH: Path = Path('./mp_data')
 LOG_PATH: Path = Path('./logs')
@@ -81,4 +82,14 @@ print(prediction)
 print(predicted_action)
 print(expected_action)
 
+# validate model
 
+yhat = model.predict(x_test)
+
+ytrue = np.argmax(y_test, axis=1).tolist()
+yhat = np.argmax(yhat, axis=1).tolist()
+
+multilabel_confusion_matrix(ytrue, yhat)
+
+score = accuracy_score(ytrue, yhat)
+print(f"Accuracy score: {score}")
