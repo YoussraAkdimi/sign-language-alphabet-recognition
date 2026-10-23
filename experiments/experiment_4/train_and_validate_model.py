@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.layers import Input, LSTM, Dense # type: ignore
+from tensorflow.keras.layers import Dropout, Input, LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 
@@ -26,8 +26,8 @@ action_num = -1
 
 for action_path in sorted(DATA_PATH.iterdir()):
 
-    if not action_path.is_dir():
-        break
+    if not action_path.is_dir() or action_path.name.startswith('_'):
+        continue
 
     action_num += 1
     action = action_path.name
@@ -47,6 +47,20 @@ for action_path in sorted(DATA_PATH.iterdir()):
 
         labels.append(action_num)
 
+
+x = np.asarray(sequences, dtype=np.float32)
+
+print("Actions:", actions)
+print("Number of sequences:", len(x))
+print("Number of classes:", len(actions))
+print("Input shape:", x.shape)
+print("Input dtype:", x.dtype)
+print("NaN values:", np.isnan(x).sum())
+print("Infinite values:", np.isinf(x).sum())
+
+for action_num, action in enumerate(actions):
+    print(f"{action}: {labels.count(action_num)} sequences")
+
 print(np.array(sequences).shape)
 
 x = np.array(sequences)
@@ -57,19 +71,25 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
 
 tb_callback = TensorBoard(log_dir=LOG_PATH)
 
+print(actions)
+
 model = Sequential([
     Input(shape=x.shape[1:]),
-    LSTM(64, return_sequences=True, activation='relu'),
-    LSTM(128, return_sequences=True, activation='relu'),
-    LSTM(64, return_sequences=False, activation='relu'),
-    Dense(64, activation='relu'),
-    Dense(32, activation='relu'),
-    Dense(len(actions), activation='softmax')
+
+    LSTM(32, return_sequences=True),
+    LSTM(16),
+
+    Dense(16, activation="relu"),
+    Dense(len(actions), activation="softmax")
 ])
 
-model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+model.compile(
+    optimizer="adam",
+    loss="categorical_crossentropy",
+    metrics=["categorical_accuracy"]
+)
 
-model.fit(x_train, y_train, epochs=1000, callbacks=[tb_callback])
+model.fit(x_train, y_train, epochs=2000, callbacks=[tb_callback])
 
 model.summary()  
 

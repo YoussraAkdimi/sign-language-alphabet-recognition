@@ -14,7 +14,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
-from modules.dto import CaptureContext
+from modules.dto import TestContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
@@ -28,7 +28,7 @@ TENSORFLOW_MODEL_PATH: Path = Path('./output_models/action.h5')
 
 actions = sorted(
     path.name for path in DATA_PATH.iterdir()
-    if path.is_dir()
+    if path.is_dir() and not path.name.startswith('_')
 )
 
 no_sequences = 30    # 30 videos worth of data
@@ -59,12 +59,15 @@ image_annotator = CompositeAnnotator.default_annotator()
 
 cap, _, camera_name = camera_manager.start_camera()
 
-capture_context = CaptureContext(camera_name)
+test_context = TestContext(camera_name, actions)
+
+print(f"Read actions: {test_context._actions}")
+
 feature_extracter = HolisticLandmarksFeatureExtracter()
 
 sequence = []
 sentence = []
-threshold = 0.9
+threshold = 0.4
 
 continue_processing = True
 
@@ -77,9 +80,9 @@ print("Model output shape:", model.output_shape)
 with HolisticLandmarker.create_from_options(options) as landmarker:
 
     while continue_processing:
-        capture_video_data(cap, landmarker, image_annotator, capture_context)
+        capture_video_data(cap, landmarker, image_annotator, test_context)
 
-        features: np.array = feature_extracter.extract(capture_context.detection_result)
+        features: np.array = feature_extracter.extract(test_context.detection_result)
 
         # Check that the returned number of features is the required length
         assert(len(features) == feature_extracter.feature_length)
@@ -88,20 +91,21 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
         sequence = sequence[-30:]    # keep last thirty frames
 
         if len(sequence) == 30:
-            res = model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
+            test_context.result = model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
             #print(actions[np.argmax(res)])
-            #print(res)
+            print(test_context.result)
 
-            if res[np.argmax(res)] > threshold:
-                action = actions[np.argmax(res)]
-
-                if len(sentence) > 0:
-                    if sentence[-1] != action:
+            if test_context.result [np.argmax(test_context.result)] > threshold:
+                action = actions[np.argmax(test_context.result)]
+                print(action)
+                if action != "idle":
+                    if len(sentence) > 0:
+                        if sentence[-1] != action:
+                            sentence.append(action)
+                            print(sentence)
+                    else:
                         sentence.append(action)
                         print(sentence)
-                else:
-                    sentence.append(action)
-                    print(sentence)
                                         
         key = cv2.waitKey(1) & 0xFF
 
@@ -110,7 +114,7 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             break
         if key == ord('c'):
             cap, _, camera_name = camera_manager.start_camera(camera_manager.next_camera_index)
-            capture_context.camera_name = camera_name
+            test_context.camera_name = camera_name
         elif not image_annotator.handle_key_press(key):
             pass
 

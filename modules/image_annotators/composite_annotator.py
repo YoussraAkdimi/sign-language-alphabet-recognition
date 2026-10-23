@@ -7,6 +7,7 @@ from modules.image_annotators.info_annotator import InfoAnnotator
 from modules.image_annotators.training_annotator import TrainingAnnotator
 from modules.image_annotators.holistic_landmark_annotator import HolisticLandmarkAnnotator
 from modules.image_annotators.face_blendshapes_annotator import FaceBlendshapesAnnotator
+from modules.image_annotators.test_annotator import TestAnnotator
 
 from modules.protocols import ImageAnnotator
 
@@ -22,7 +23,8 @@ class AnnotatorTypes(Enum):
     FACE_BLENDSHAPES_ANNOTATOR = FaceBlendshapesAnnotator
     INFO_ANNOTATOR = InfoAnnotator
     TRAINING_ANNOTATOR = TrainingAnnotator
-    
+    TEST_ANNOTATOR = TestAnnotator
+
 class CompositeAnnotator:
     def __init__(self):
         self.__annotators = {}

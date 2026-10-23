@@ -58,16 +58,20 @@ continue_playing = True
 
 for action_path in sorted(DATA_PATH.iterdir()):
     if not action_path.is_dir() or not continue_playing:
-        break
+        continue
 
     for sequence_path in sorted(action_path.iterdir()):
-        if not action_path.is_dir() or not continue_playing:
-            break
+        if (
+            not action_path.is_dir() or 
+            action_path.name.startswith('_') or
+            not continue_playing
+        ):
+            continue
 
         # start playing
         for frame_path in sorted(sequence_path.iterdir()):
             if not frame_path.is_file or not continue_playing:
-                break
+                continue
 
             # # save the features in a file
             # npy_path = file_path = DATA_PATH / action / str(sequence) / f"{frame}.npy"
