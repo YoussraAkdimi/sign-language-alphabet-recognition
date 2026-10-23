@@ -261,4 +261,4 @@ def draw_text_on_image(text: str | list[str],
 
         positions.append((line_x, line_y))
 
-    return positions
+    return line_x, line_y

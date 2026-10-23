@@ -6,6 +6,7 @@ from mediapipe.tasks.python.vision.holistic_landmarker import (
 )
 
 from modules.dto import CaptureContext
+from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_text_on_image
 
 
 class FaceBlendshapesAnnotator:
@@ -17,8 +18,9 @@ class FaceBlendshapesAnnotator:
         image: cv2.typing.MatLike,
         capture_context: CaptureContext,
     ) -> cv2.typing.MatLike:
+        line_spacing = 3
 
-        height, width = image.shape[:2]
+        height, _ = image.shape[:2]
 
         # Create a panel to the right of the image.
         panel = np.full(
@@ -27,17 +29,13 @@ class FaceBlendshapesAnnotator:
             dtype=np.uint8,
         )
 
-        # Add a heading.
-        cv2.putText(
-            panel,
-            "Face Blendshapes",
-            (15, 30),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            0.7,
-            (255, 255, 255),
-            2,
-            cv2.LINE_AA,
-        )
+        _, y = draw_text_on_image("Face Blendshapes",
+                           panel,
+                           x=HorizontalPosition.LEFT,
+                           y=VerticalPosition.TOP,
+                           font_scale=0.7)
+
+        y = y + line_spacing*3
 
         if capture_context.detection_result and capture_context.detection_result.face_blendshapes:
             categories = capture_context.detection_result.face_blendshapes
@@ -48,8 +46,8 @@ class FaceBlendshapesAnnotator:
                 reverse=True,
             )
 
-            for index, category in enumerate(categories):
-                y = 65 + index * 28
+            for category in categories:
+                y = y + line_spacing  # next line y position (add margin)
 
                 if y >= height:
                     break
@@ -59,16 +57,11 @@ class FaceBlendshapesAnnotator:
                     f"{category.score:.3f}"
                 )
 
-                cv2.putText(
-                    panel,
-                    text,
-                    (15, y),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    0.5,
-                    (0, 255, 0),
-                    1,
-                    cv2.LINE_AA,
-                )
+                _, y = draw_text_on_image(text, 
+                                   panel,
+                                   x=HorizontalPosition.LEFT,
+                                   y=y,
+                                   font_scale=0.5)
 
         # Combine the original image and the panel.
         return np.hstack((image, panel))
