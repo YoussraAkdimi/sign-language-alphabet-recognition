@@ -23,11 +23,15 @@ from tensorflow.keras.models import load_model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 
 MEDIAPIPE_MODEL_PATH: str = '././models/holistic_landmarker.task'
-#DATA_PATH: Path = Path('./mp_data')
+DATA_PATH: Path = Path('./mp_data')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/action.h5')
 
-actions = ['hello', 'thanks', 'iloveyou' ]
-no_sequences = 5    # 30 videos worth of data
+actions = sorted(
+    path.name for path in DATA_PATH.iterdir()
+    if path.is_dir()
+)
+
+no_sequences = 30    # 30 videos worth of data
 sequence_length = 30 # use 30 frames for an action
 
 print(f"MediaPipe version: {mp.__version__}")
@@ -60,7 +64,7 @@ feature_extracter = HolisticLandmarksFeatureExtracter()
 
 sequence = []
 sentence = []
-threshold = 0.4
+threshold = 0.9
 
 continue_processing = True
 
@@ -84,9 +88,21 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
         sequence = sequence[-30:]    # keep last thirty frames
 
         if len(sequence) == 30:
-            res = model.predict(np.expand_dims(sequence, axis=0))[0]
-            print(res)
+            res = model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
+            #print(actions[np.argmax(res)])
+            #print(res)
 
+            if res[np.argmax(res)] > threshold:
+                action = actions[np.argmax(res)]
+
+                if len(sentence) > 0:
+                    if sentence[-1] != action:
+                        sentence.append(action)
+                        print(sentence)
+                else:
+                    sentence.append(action)
+                    print(sentence)
+                                        
         key = cv2.waitKey(1) & 0xFF
 
         if key == ord('q'):

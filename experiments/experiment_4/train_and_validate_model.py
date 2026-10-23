@@ -18,23 +18,34 @@ DATA_PATH: Path = Path('./mp_data')
 LOG_PATH: Path = Path('./logs')
 MODEL_PATH: Path = Path('./output_models')
 
-actions = ['hello', 'thanks', 'iloveyou']
-no_sequences = 5    # 30 videos worth of data
-sequence_length = 30 # use 30 frames for an action
+label_map = {} #{label: num for num, label in enumerate(actions)}
 
-label_map = {label:num for num, label in enumerate(actions)}
+sequences, labels, actions = [], [], []  # sequence=input, labels=output
 
-sequences, labels = [], []  # sequence=input, labels=output
-for action in actions:
-    for sequence in range(no_sequences):
+action_num = -1
+
+for action_path in sorted(DATA_PATH.iterdir()):
+
+    if not action_path.is_dir():
+        break
+
+    action_num += 1
+    action = action_path.name
+    actions.append(action)
+
+    print(f"Num={action_num}, action={action}")
+          
+    for sequence_path in sorted(action_path.iterdir()):
+
         window = []
-        for frame in range(sequence_length):
-            npy_path = file_path = DATA_PATH / action / str(sequence) / f"{frame}.npy"
-            res = np.load(npy_path)
+        for frame_path in sorted(sequence_path.iterdir()):
+            data = np.load(frame_path)
 
-            window.append(res)
+            window.append(data)
+
         sequences.append(window)
-        labels.append(label_map[action])
+
+        labels.append(action_num)
 
 print(np.array(sequences).shape)
 
@@ -58,7 +69,7 @@ model = Sequential([
 
 model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
 
-model.fit(x_train, y_train, epochs=200, callbacks=[tb_callback])
+model.fit(x_train, y_train, epochs=1000, callbacks=[tb_callback])
 
 model.summary()  
 
