@@ -22,8 +22,8 @@ from modules.logic.video_loop import capture_video_data
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 DATA_PATH: Path = Path('./mp_data')
 
-actions = ['hello', 'thanks', 'iloveyou' ]
-no_sequences = 1    # 30 videos worth of data
+actions = ['slapen', 'vogel', 'poes' ]
+no_sequences = 30    # 30 videos worth of data
 sequence_length = 30 # use 30 frames for an action
 
 for action in actions:
