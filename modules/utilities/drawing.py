@@ -7,11 +7,22 @@ from mediapipe.tasks.python.vision import drawing_styles
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+from enum import Enum, auto
 
 MARGIN = 10  # pixels
 FONT_SIZE = 1
 FONT_THICKNESS = 1
 HANDEDNESS_TEXT_COLOR = (88, 205, 54) # vibrant green
+
+class VerticalPosition(Enum):
+    TOP = auto()
+    MIDDLE = auto()
+    BOTTOM = auto()
+
+class HorizontalPosition(Enum):
+    LEFT = auto()
+    MIDDLE = auto()
+    RIGHT = auto()
 
 def draw_holistic_landmarks_on_image(rgb_image, detection_result):
     # pose_landmarks = detection_result["pose_landmarks"]
@@ -165,3 +176,89 @@ def draw_hand_landmarks_on_image(rgb_image, detection_result):
                 FONT_SIZE, HANDEDNESS_TEXT_COLOR, FONT_THICKNESS, cv2.LINE_AA)
 
   return annotated_image
+
+
+def draw_text_on_image(text: str | list[str],
+                       image: cv2.typing.MatLike,
+                       x: int | HorizontalPosition = HorizontalPosition.MIDDLE,
+                       y: int | VerticalPosition = VerticalPosition.MIDDLE,
+                       margin_x: int = 20,
+                       margin_y: int = 20,
+                       font_scale: float = 1.0,
+                       thickness: int = 2,
+                       line_spacing: int = 5,
+                      ) -> list[tuple[int, int]]:
+
+    height, width = image.shape[:2]
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    # Support both a single string and multiple lines.
+    lines = text.splitlines() if isinstance(text, str) else text
+
+    if not lines:
+        return []
+
+    # Measure every line.
+    sizes = [
+        cv2.getTextSize(line, font, font_scale, thickness)
+        for line in lines
+    ]
+
+    text_widths = [size[0][0] for size in sizes]
+    text_heights = [size[0][1] for size in sizes]
+    baselines = [size[1] for size in sizes]
+
+    # Calculate the total height of the text block.
+    line_step = max(text_heights) + max(baselines) + line_spacing
+    block_height = (
+        max(text_heights)
+        + (len(lines) - 1) * line_step
+        + max(baselines)
+    )
+
+    # Determine the top of the text block.
+    if isinstance(y, VerticalPosition):
+        match y:
+            case VerticalPosition.TOP:
+                top = margin_y
+            case VerticalPosition.MIDDLE:
+                top = (height - block_height) // 2
+            case VerticalPosition.BOTTOM:
+                top = height - margin_y - block_height
+    else:
+        top = y
+
+    positions = []
+
+    for i, (line, text_width, text_height) in enumerate(
+        zip(lines, text_widths, text_heights)
+    ):
+        # Determine the horizontal position of this line.
+        if isinstance(x, HorizontalPosition):
+            match x:
+                case HorizontalPosition.LEFT:
+                    line_x = margin_x
+                case HorizontalPosition.MIDDLE:
+                    line_x = (width - text_width) // 2
+                case HorizontalPosition.RIGHT:
+                    line_x = width - text_width - margin_x
+        else:
+            line_x = x
+
+        # OpenCV expects the baseline, not the top-left corner.
+        line_y = top + text_height + i * line_step
+
+        cv2.putText(
+            image,
+            line,
+            (line_x, line_y),
+            font,
+            font_scale,
+            (0, 255, 0),
+            thickness,
+            cv2.LINE_AA,
+        )
+
+        positions.append((line_x, line_y))
+
+    return positions

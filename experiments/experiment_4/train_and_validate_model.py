@@ -46,14 +46,6 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
 
 tb_callback = TensorBoard(log_dir=LOG_PATH)
 
-# model = Sequential()
-# model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30,1659)))
-# model.add(LSTM(128, return_sequences=True, activation='relu'))
-# model.add(LSTM(64, return_sequences=False, activation='relu'))
-# model.add(Dense(64, activation='relu'))
-# model.add(Dense(32, activation='relu'))
-# model.add(Dense(actions.shape[0], activation='softmax'))
-
 model = Sequential([
     Input(shape=x.shape[1:]),
     LSTM(64, return_sequences=True, activation='relu'),

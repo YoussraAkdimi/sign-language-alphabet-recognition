@@ -23,3 +23,5 @@
 
 # Links and references
 [Google Mediapipe library](https://developers.google.com/edge/mediapipe/solutions/vision/hand_landmarker)
+
+tensorboard --logdir=.
