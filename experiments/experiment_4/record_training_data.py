@@ -28,7 +28,7 @@ sequence_length = 30 # use 30 frames for an action
 
 for action in actions:
     for sequence in range(no_sequences):
-        sequence_path = DATA_PATH / action / str(sequence)
+        sequence_path = DATA_PATH / action.zfill(3) / str(sequence).zfill(3)
         sequence_path.mkdir(parents=True, exist_ok=True)
 
 print(DATA_PATH)
@@ -103,8 +103,8 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
                     #     exit(0)
 
                     # save the features in a file
-                    npy_path = file_path = DATA_PATH / capture_context.action / str(capture_context.sequence) / str(capture_context.frame)
-                    np.save(npy_path, features)
+                    file_path = DATA_PATH / capture_context.action / str(capture_context.sequence).zfill(3) / str(capture_context.frame).zfill(3)
+                    np.save(file_path, features)
 
                     key = cv2.waitKey(1) & 0xFF
 

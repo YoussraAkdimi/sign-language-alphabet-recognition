@@ -19,7 +19,7 @@ from modules.dto import TrainingContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
-from modules.utilities.drawing import draw_holistic_landmarks_on_image
+from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_holistic_landmarks_on_image, draw_text_on_image
 from mediapipe.tasks.python.components.containers import NormalizedLandmark
 
 @dataclass
@@ -60,22 +60,24 @@ sequence_length = 30 # use 30 frames for an action
 
 continue_playing = True
 
-for action in actions:
-    if not continue_playing:
+for action_path in sorted(DATA_PATH.iterdir()):
+    if not action_path.is_dir() or not continue_playing:
         break
 
-    for sequence in range(no_sequences):
-        if not continue_playing:
+    for sequence_path in sorted(action_path.iterdir()):
+        if not action_path.is_dir() or not continue_playing:
             break
 
         # start playing
-        for frame in range(sequence_length):
+        for frame_path in sorted(sequence_path.iterdir()):
+            if not frame_path.is_file or not continue_playing:
+                break
 
-            # save the features in a file
-            npy_path = file_path = DATA_PATH / action / str(sequence) / f"{frame}.npy"
-            data = np.load(npy_path)
+            # # save the features in a file
+            # npy_path = file_path = DATA_PATH / action / str(sequence) / f"{frame}.npy"
+            data = np.load(frame_path)
 
-            print(data)
+            #print(data)
 
             landmarks = reconstruct_landmarks(data)
 
@@ -86,6 +88,12 @@ for action in actions:
                 rgb_image,
                 landmarks,
             )
+
+            text = f"{action_path.name}/{sequence_path.name}/{frame_path.name}"
+            draw_text_on_image(text=text, 
+                               image=annotated_image, 
+                               x=HorizontalPosition.MIDDLE, 
+                               y=VerticalPosition.TOP)
 
             cv2.imshow("Reconstructed Holistic Landmarks", annotated_image)
 
