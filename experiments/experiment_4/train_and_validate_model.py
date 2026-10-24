@@ -14,9 +14,14 @@ from tensorflow.keras.layers import Dropout, Input, LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 
+from modules.models import SimpleModel
+
 DATA_PATH: Path = Path('./mp_data')
 LOG_PATH: Path = Path('./logs')
 MODEL_PATH: Path = Path('./output_models')
+
+# Choose the model here
+model_factory = SimpleModel()
 
 label_map = {} #{label: num for num, label in enumerate(actions)}
 
@@ -47,8 +52,8 @@ for action_path in sorted(DATA_PATH.iterdir()):
 
         labels.append(action_num)
 
-
 x = np.asarray(sequences, dtype=np.float32)
+y = to_categorical(labels).astype(int)
 
 print("Actions:", actions)
 print("Number of sequences:", len(x))
@@ -63,25 +68,22 @@ for action_num, action in enumerate(actions):
 
 print(np.array(sequences).shape)
 
-x = np.array(sequences)
-y = to_categorical(labels).astype(int)
-
 # create a training set and a test set
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
 
 tb_callback = TensorBoard(log_dir=LOG_PATH)
 
-print(actions)
+model = model_factory.create(x.shape[1:], len(actions))
 
-model = Sequential([
-    Input(shape=x.shape[1:]),
+# model = Sequential([
+#     Input(shape=x.shape[1:]),
 
-    LSTM(32, return_sequences=True),
-    LSTM(16),
+#     LSTM(32, return_sequences=True),
+#     LSTM(16),
 
-    Dense(16, activation="relu"),
-    Dense(len(actions), activation="softmax")
-])
+#     Dense(16, activation="relu"),
+#     Dense(len(actions), activation="softmax")
+# ])
 
 model.compile(
     optimizer="adam",
@@ -93,7 +95,7 @@ model.fit(x_train, y_train, epochs=2000, callbacks=[tb_callback])
 
 model.summary()  
 
-model.save(MODEL_PATH / 'action.h5')
+#model.save(MODEL_PATH / 'action.h5')
 
 # test a prediction
 prediction = model.predict(x_test)

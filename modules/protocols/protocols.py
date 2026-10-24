@@ -1,5 +1,6 @@
 from typing import ClassVar, Protocol, TYPE_CHECKING
 import cv2.typing as cv2Typing
+from tensorflow.keras.models import Model # type: ignore
 import numpy as np
 
 # if TYPE_CHECKING:
@@ -33,4 +34,8 @@ class ExtractFeaturesFromDetectionResult(Protocol):
         Returns:
             A dictionary containing the converted data.
         """
+        ...
+
+class ModelFactory(Protocol):
+    def create(self, input_shape: tuple, action_length: int) -> Model:
         ...

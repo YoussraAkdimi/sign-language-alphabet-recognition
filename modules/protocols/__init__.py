@@ -1,3 +1,3 @@
-from .protocols import ImageAnnotator, ExtractFeaturesFromDetectionResult
+from .protocols import ImageAnnotator, ExtractFeaturesFromDetectionResult, ModelFactory
 
-__all__ = ["ImageAnnotator", "ExtractFeaturesFromDetectionResult"]
+__all__ = ["ImageAnnotator", "ExtractFeaturesFromDetectionResult", "ModelFactory"]
