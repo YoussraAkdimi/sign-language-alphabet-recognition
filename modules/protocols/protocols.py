@@ -39,3 +39,11 @@ class ExtractFeaturesFromDetectionResult(Protocol):
 class ModelFactory(Protocol):
     def create(self, input_shape: tuple, action_length: int) -> Model:
         ...
+
+    @property
+    def name(self) -> str:
+        ...
+
+    @property
+    def nr_of_epochs(self) -> int:
+        ...

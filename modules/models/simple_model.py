@@ -3,6 +3,14 @@ from tensorflow.keras.models import Sequential # type: ignore
 from tensorflow.keras.layers import Dropout, Input, LSTM, Dense # type: ignore
 
 class SimpleModel(ModelFactory):
+    @property
+    def name(self) -> str:
+        return "simple_model"
+
+    @property
+    def nr_of_epochs(self) -> int:
+        return 1000
+    
     def create(self, input_shape: tuple, action_length: int):
         model = Sequential([
             Input(shape=input_shape),

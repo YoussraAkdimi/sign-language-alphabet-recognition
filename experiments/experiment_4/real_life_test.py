@@ -24,7 +24,7 @@ from tensorflow.keras.callbacks import TensorBoard # type: ignore
 
 MEDIAPIPE_MODEL_PATH: str = '././models/holistic_landmarker.task'
 DATA_PATH: Path = Path('./mp_data')
-TENSORFLOW_MODEL_PATH: Path = Path('./output_models/action.h5')
+TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 
 actions = sorted(
     path.name for path in DATA_PATH.iterdir()

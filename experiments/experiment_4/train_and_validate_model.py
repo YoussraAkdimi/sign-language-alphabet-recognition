@@ -14,6 +14,7 @@ from tensorflow.keras.layers import Dropout, Input, LSTM, Dense # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 
+from modules.protocols import ModelFactory
 from modules.models import SimpleModel
 
 DATA_PATH: Path = Path('./mp_data')
@@ -21,7 +22,7 @@ LOG_PATH: Path = Path('./logs')
 MODEL_PATH: Path = Path('./output_models')
 
 # Choose the model here
-model_factory = SimpleModel()
+model_factory: ModelFactory = SimpleModel()
 
 label_map = {} #{label: num for num, label in enumerate(actions)}
 
@@ -73,17 +74,7 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
 
 tb_callback = TensorBoard(log_dir=LOG_PATH)
 
-model = model_factory.create(x.shape[1:], len(actions))
-
-# model = Sequential([
-#     Input(shape=x.shape[1:]),
-
-#     LSTM(32, return_sequences=True),
-#     LSTM(16),
-
-#     Dense(16, activation="relu"),
-#     Dense(len(actions), activation="softmax")
-# ])
+model = model_factory.create(input_shape=x.shape[1:], action_length=len(actions))
 
 model.compile(
     optimizer="adam",
@@ -91,11 +82,11 @@ model.compile(
     metrics=["categorical_accuracy"]
 )
 
-model.fit(x_train, y_train, epochs=2000, callbacks=[tb_callback])
+model.fit(x_train, y_train, epochs = model_factory.nr_of_epochs, callbacks=[tb_callback])
 
 model.summary()  
 
-#model.save(MODEL_PATH / 'action.h5')
+model.save(MODEL_PATH / f'{model_factory.name}.h5')
 
 # test a prediction
 prediction = model.predict(x_test)
