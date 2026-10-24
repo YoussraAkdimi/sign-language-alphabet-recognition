@@ -13,7 +13,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
-from modules.dto import CaptureContext
+from modules.context import CaptureContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 

@@ -3,7 +3,7 @@ import cv2.typing as cv2Typing
 import numpy as np
 
 # if TYPE_CHECKING:
-from ..dto.capture_context import CaptureContext
+from ..context.capture_context import CaptureContext
 
 class ImageAnnotator(Protocol):
     """Writes contextual information onto an existing image, 

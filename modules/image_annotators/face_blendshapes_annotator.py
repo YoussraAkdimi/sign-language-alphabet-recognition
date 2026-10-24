@@ -5,7 +5,7 @@ from mediapipe.tasks.python.vision.holistic_landmarker import (
     HolisticLandmarkerResult,
 )
 
-from modules.dto import CaptureContext
+from modules.context import CaptureContext
 from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_text_on_image
 
 

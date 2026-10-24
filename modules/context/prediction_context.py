@@ -1,8 +1,8 @@
 import numpy as np
 
-from modules.dto.capture_context import CaptureContext
+from modules.context.capture_context import CaptureContext
 
-class TestContext(CaptureContext):
+class PredictionContext(CaptureContext):
     def __init__(self, camera_name: str, actions: list[str]):
         super().__init__(camera_name)
 

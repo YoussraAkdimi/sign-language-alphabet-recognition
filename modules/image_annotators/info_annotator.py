@@ -1,6 +1,6 @@
 import cv2
 
-from modules.dto import CaptureContext
+from modules.context import CaptureContext
 from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_text_on_image
 
 class InfoAnnotator:

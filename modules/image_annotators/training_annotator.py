@@ -1,6 +1,6 @@
 import cv2
 
-from modules.dto import CaptureContext, TrainingContext
+from modules.context import CaptureContext, TrainingContext
 from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_holistic_landmarks_on_image, draw_text_on_image
 
 class TrainingAnnotator:

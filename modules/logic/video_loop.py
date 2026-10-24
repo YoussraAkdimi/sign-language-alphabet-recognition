@@ -1,7 +1,7 @@
 import cv2
 
 import mediapipe as mp
-from modules.dto.capture_context import CaptureContext
+from modules.context.capture_context import CaptureContext
 from modules.protocols.protocols import ImageAnnotator
 
 def capture_video_data(capture_device, landmarker, image_annotator: ImageAnnotator, capture_context: CaptureContext):

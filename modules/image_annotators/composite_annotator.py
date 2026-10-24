@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from modules.dto import CaptureContext
+from modules.context import CaptureContext
 from modules.image_annotators.camera_annotator import CameraAnnotator
 from modules.image_annotators.info_annotator import InfoAnnotator
 from modules.image_annotators.training_annotator import TrainingAnnotator

@@ -1,4 +1,4 @@
-from modules.dto.capture_context import CaptureContext
+from modules.context.capture_context import CaptureContext
 
 class TrainingContext(CaptureContext):
     def __init__(self, camera_name: str):

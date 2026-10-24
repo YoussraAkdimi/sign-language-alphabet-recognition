@@ -1,6 +1,6 @@
 import cv2
 
-from modules.dto.capture_context import CaptureContext
+from modules.context.capture_context import CaptureContext
 from modules.utilities.drawing import draw_holistic_landmarks_on_image
 from mediapipe.tasks.python.vision.holistic_landmarker import ( # otherwise type annotation fails
     HolisticLandmarkerResult,

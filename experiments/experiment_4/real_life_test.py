@@ -14,7 +14,7 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
-from modules.dto import TestContext
+from modules.context import PredictionContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
@@ -59,9 +59,9 @@ image_annotator = CompositeAnnotator.default_annotator()
 
 cap, _, camera_name = camera_manager.start_camera()
 
-test_context = TestContext(camera_name, actions)
+prediction_context = PredictionContext(camera_name, actions)
 
-print(f"Read actions: {test_context._actions}")
+print(f"Read actions: {prediction_context._actions}")
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
 
@@ -80,9 +80,9 @@ print("Model output shape:", model.output_shape)
 with HolisticLandmarker.create_from_options(options) as landmarker:
 
     while continue_processing:
-        capture_video_data(cap, landmarker, image_annotator, test_context)
+        capture_video_data(cap, landmarker, image_annotator, prediction_context)
 
-        features: np.array = feature_extracter.extract(test_context.detection_result)
+        features: np.array = feature_extracter.extract(prediction_context.detection_result)
 
         # Check that the returned number of features is the required length
         assert(len(features) == feature_extracter.feature_length)
@@ -91,12 +91,12 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
         sequence = sequence[-30:]    # keep last thirty frames
 
         if len(sequence) == 30:
-            test_context.result = model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
+            prediction_context.result = model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
             #print(actions[np.argmax(res)])
-            print(test_context.result)
+            print(prediction_context.result)
 
-            if test_context.result [np.argmax(test_context.result)] > threshold:
-                action = actions[np.argmax(test_context.result)]
+            if prediction_context.result [np.argmax(prediction_context.result)] > threshold:
+                action = actions[np.argmax(prediction_context.result)]
                 print(action)
                 if action != "idle":
                     if len(sentence) > 0:
@@ -114,7 +114,7 @@ with HolisticLandmarker.create_from_options(options) as landmarker:
             break
         if key == ord('c'):
             cap, _, camera_name = camera_manager.start_camera(camera_manager.next_camera_index)
-            test_context.camera_name = camera_name
+            prediction_context.camera_name = camera_name
         elif not image_annotator.handle_key_press(key):
             pass
 
