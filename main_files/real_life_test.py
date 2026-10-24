@@ -1,10 +1,7 @@
 import sys
 from pathlib import Path
-import time
 
-# add three levels of folders to the system path so that
-# we can resolve modules from other paths
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from matplotlib import image
 import mediapipe as mp

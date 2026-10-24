@@ -2,3 +2,21 @@
 mp_data copy/
 logs/
 output_models/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+
+# macOS
+.DS_Store
