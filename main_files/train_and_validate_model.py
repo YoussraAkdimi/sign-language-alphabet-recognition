@@ -13,7 +13,7 @@ from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 
 from modules.protocols import ModelFactory
-from modules.models import SimpleModel
+from modules.model_factory import SimpleModel
 
 DATA_PATH: Path = Path('./mp_data')
 LOG_PATH: Path = Path('./logs')

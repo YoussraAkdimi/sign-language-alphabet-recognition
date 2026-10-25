@@ -20,3 +20,6 @@ env/
 
 # macOS
 .DS_Store
+
+mp_data_temp/
+mp_raw_data/
