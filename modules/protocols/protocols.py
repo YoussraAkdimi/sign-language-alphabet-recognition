@@ -47,3 +47,7 @@ class ModelFactory(Protocol):
     @property
     def nr_of_epochs(self) -> int:
         ...
+
+class GesturePredictionCollector(Protocol):
+    def add_model_prediction(self, prediction: np.ndarray) -> int | None:
+        ...

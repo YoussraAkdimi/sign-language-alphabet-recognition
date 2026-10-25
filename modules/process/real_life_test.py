@@ -15,6 +15,7 @@ from modules.context import PredictionContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
+from modules.protocols import GesturePredictionCollector
 from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import load_model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
@@ -27,7 +28,7 @@ MEDIAPIPE_MODEL_PATH: str = str(
 DATA_PATH: Path = Path('./mp_data')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 
-def real_life_test(trained_model: Model, sequence_length: int= 30) -> None:
+def real_life_test(trained_model: Model, gesture_prediction_collector: GesturePredictionCollector, sequence_length: int= 30) -> None:
     actions = sorted(
         path.name for path in DATA_PATH.iterdir()
         if path.is_dir() and not path.name.startswith('_')
@@ -89,11 +90,11 @@ def real_life_test(trained_model: Model, sequence_length: int= 30) -> None:
                 sequence = sequence[-sequence_length:]    # keep last thirty frames
 
                 if len(sequence) == sequence_length:
-                    prediction_context.result = trained_model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
-                    #print(actions[np.argmax(res)])
-                    #print(prediction_context.result)
+                    model_prediction_for_recent_sequence = trained_model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
 
-                    if prediction_context.result [np.argmax(prediction_context.result)] > threshold:
+                    prediction_context.result = gesture_prediction_collector.add_model_prediction(model_prediction_for_recent_sequence)
+
+                    if prediction_context.result:
                         action = actions[np.argmax(prediction_context.result)]
                         print(action)
                         if action != "idle":
