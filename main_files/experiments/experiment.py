@@ -18,7 +18,7 @@ ACTIONS = ["test"]
 #record_training_data(DATA_PATH, ACTIONS)
 
 # show trained data
-show_trained_data(DATA_PATH)
+#show_trained_data(DATA_PATH)
 
 # train_model
 model = train_and_validate_model(model_factory=SimpleModel(), 
@@ -26,6 +26,6 @@ model = train_and_validate_model(model_factory=SimpleModel(),
                                  nr_of_epochs=400)
 
 # load model
-#model = load_model(TENSORFLOW_MODEL_PATH)
+model = load_model(TENSORFLOW_MODEL_PATH)
 
 real_life_test(trained_model=model)
