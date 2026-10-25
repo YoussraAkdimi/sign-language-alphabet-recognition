@@ -49,7 +49,7 @@ def _reconstruct_landmarks(data: np.ndarray,) -> ReconstructedHolisticLandmarks:
         face_landmarks=convert(data[225:1659].reshape(478, 3)),
     )
 
-MODEL_PATH: str = '././models/holistic_landmarker.task'
+MODEL_PATH: str = '././task_models/holistic_landmarker.task'
 
 def show_trained_data(data_path: Path) -> None:
     continue_playing = True
