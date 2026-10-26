@@ -7,15 +7,10 @@ from modules.image_annotators.info_annotator import InfoAnnotator
 from modules.image_annotators.training_annotator import TrainingAnnotator
 from modules.image_annotators.holistic_landmark_annotator import HolisticLandmarkAnnotator
 from modules.image_annotators.face_blendshapes_annotator import FaceBlendshapesAnnotator
-from modules.image_annotators.test_annotator import TestAnnotator
 
 from modules.protocols import ImageAnnotator
 
 import cv2.typing as cv2Typing
- # import like this otherwise type annotation fails
-from mediapipe.tasks.python.vision.holistic_landmarker import (
-    HolisticLandmarkerResult,
-)
 
 class AnnotatorTypes(Enum):
     CAMERA_ANNOTATOR = CameraAnnotator
@@ -23,7 +18,6 @@ class AnnotatorTypes(Enum):
     FACE_BLENDSHAPES_ANNOTATOR = FaceBlendshapesAnnotator
     INFO_ANNOTATOR = InfoAnnotator
     TRAINING_ANNOTATOR = TrainingAnnotator
-    TEST_ANNOTATOR = TestAnnotator
 
 class CompositeAnnotator:
     def __init__(self):
@@ -73,6 +67,18 @@ class CompositeAnnotator:
         for annotator_type in AnnotatorTypes:
             composite_annotator.add_annotator(
                 annotator_type.value(),
+                enabled=True,
+            )
+
+        return composite_annotator
+
+    @staticmethod
+    def from_annotator_types(*annotator_types: type[ImageAnnotator],) -> CompositeAnnotator:
+        composite_annotator = CompositeAnnotator()
+
+        for annotator_type in annotator_types:
+            composite_annotator.add_annotator(
+                annotator_type(),
                 enabled=True,
             )
 

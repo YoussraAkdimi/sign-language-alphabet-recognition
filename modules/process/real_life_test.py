@@ -15,7 +15,7 @@ from modules.context import PredictionContext
 from modules.image_annotators import CompositeAnnotator
 from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
-from modules.protocols import GesturePredictionCollector
+from modules.protocols import GesturePredictionCollector, ImageAnnotator
 from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import load_model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
@@ -28,7 +28,11 @@ MEDIAPIPE_MODEL_PATH: str = str(
 DATA_PATH: Path = Path('./mp_data')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 
-def real_life_test(trained_model: Model, gesture_prediction_collector: GesturePredictionCollector, sequence_length: int= 30) -> None:
+def real_life_test(trained_model: Model, 
+                   gesture_prediction_collector: GesturePredictionCollector, 
+                   sequence_length: int= 30,
+                   image_annotator: ImageAnnotator = CompositeAnnotator.default_annotator()) -> None:
+    
     actions = sorted(
         path.name for path in DATA_PATH.iterdir()
         if path.is_dir() and not path.name.startswith('_')
@@ -55,8 +59,6 @@ def real_life_test(trained_model: Model, gesture_prediction_collector: GesturePr
         min_pose_detection_confidence=0.5,
         min_hand_landmarks_confidence=0.5)
 
-    image_annotator = CompositeAnnotator.default_annotator()
-
     cap, _, camera_name = camera_manager.start_camera()
 
     prediction_context = PredictionContext(camera_name, actions)
@@ -66,8 +68,6 @@ def real_life_test(trained_model: Model, gesture_prediction_collector: GesturePr
     feature_extracter = HolisticLandmarksFeatureExtracter()
 
     sequence = []
-    sentence = []
-    threshold = 0.4
 
     continue_processing = True
 
@@ -90,21 +90,23 @@ def real_life_test(trained_model: Model, gesture_prediction_collector: GesturePr
                 sequence = sequence[-sequence_length:]    # keep last thirty frames
 
                 if len(sequence) == sequence_length:
-                    model_prediction_for_recent_sequence = trained_model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
+                    prediction_context.model_prediction = trained_model.predict(np.expand_dims(sequence, axis=0), verbose=0)[0]
 
-                    prediction_context.result = gesture_prediction_collector.add_model_prediction(model_prediction_for_recent_sequence)
+                    predicted_action_index = gesture_prediction_collector.add_model_prediction(prediction_context.model_prediction)
 
-                    if prediction_context.result:
-                        action = actions[np.argmax(prediction_context.result)]
+                    #print(prediction_context.result)
+
+                    if predicted_action_index is not None:
+                        action = actions[predicted_action_index]
                         print(action)
-                        if action != "idle":
-                            if len(sentence) > 0:
-                                if sentence[-1] != action:
-                                    sentence.append(action)
-                                    print(sentence)
-                            else:
-                                sentence.append(action)
-                                print(sentence)
+                    #     if action != "idle":
+                    #         if len(sentence) > 0:
+                    #             if sentence[-1] != action:
+                    #                 sentence.append(action)
+                    #                 print(sentence)
+                    #         else:
+                    #             sentence.append(action)
+                    #             print(sentence)
                                                 
                 key = cv2.waitKey(1) & 0xFF
 

@@ -4,6 +4,8 @@ from .info_annotator import InfoAnnotator
 from .face_blendshapes_annotator import FaceBlendshapesAnnotator
 from .camera_annotator import CameraAnnotator
 from .training_annotator import TrainingAnnotator
+from .predictions_annotator import PredictionsAnnotator
+from .real_life_test_annotator import RealLifeTestAnnotator
 
 __all__ = ["CompositeAnnotator", 
            "AnnotatorTypes", 
@@ -11,4 +13,6 @@ __all__ = ["CompositeAnnotator",
            "InfoAnnotator", 
            "FaceBlendshapesAnnotator", 
            "CameraAnnotator",
-           "TrainingAnnotator"]
+           "TrainingAnnotator",
+           "PredictionsAnnotator",
+           "RealLifeTestAnnotator"]

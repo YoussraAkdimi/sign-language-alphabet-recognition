@@ -8,7 +8,17 @@ class PredictionContext(CaptureContext):
 
         self._actions = actions
         self._action = None
-        self._result = None
+        self._model_prediction = None
+
+    @property
+    def actions(self) -> str:
+        """
+        Get the name of the action being guessed.
+
+        Returns:
+            The name of the action.
+        """
+        return self._actions
 
     @property
     def action(self) -> str:
@@ -31,9 +41,9 @@ class PredictionContext(CaptureContext):
         self._action = value
 
     @property
-    def result(self) -> np.ndarray | None:
-        return self._result
+    def model_prediction(self) -> np.ndarray | None:
+        return self._model_prediction
 
-    @result.setter
-    def result(self, value: np.ndarray) -> None:
-        self._result = value
+    @model_prediction.setter
+    def model_prediction(self, value: np.ndarray) -> None:
+        self._model_prediction = value

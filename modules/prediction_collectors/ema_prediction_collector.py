@@ -1,6 +1,6 @@
 import numpy as np
 
-class EMAPrecitionCollector:
+class EMAPredictionCollector:
     """
     Exponential Moving Average class
 
@@ -27,29 +27,46 @@ class EMAPrecitionCollector:
         self._armed = True
         self._idle_count = 0
 
-    def update(self, probs):
+    def add_model_prediction(self, prediction: np.ndarray):
         if self._smoothed is None:
-            self._smoothed = probs
+            self._smoothed = prediction.copy()
         else:
-            self._smoothed = self.alpha * probs + (1 - self.alpha) * self._smoothed
+            self._smoothed = (
+                self.alpha * prediction
+                + (1 - self.alpha) * self._smoothed
+            )
 
         best = int(np.argmax(self._smoothed))
         confident = self._smoothed[best] > self.threshold
 
-        if not confident or best == self.idle_index:
+        # Track idle using the raw model prediction.
+        raw_best = int(np.argmax(prediction))
+
+        if raw_best == self.idle_index:
             self._idle_count += 1
-            self._candidate, self._candidate_count = None, 0
-            if self._idle_count >= self.idle_frames_to_rearm:
-                self._armed = True
+        else:
+            self._idle_count = 0
+
+        if self._idle_count >= self.idle_frames_to_rearm:
+            self._armed = True
+            self._candidate = None
+            self._candidate_count = 0
+
+        # Do not emit idle or low-confidence predictions.
+        if not confident or best == self.idle_index:
+            self._candidate = None
+            self._candidate_count = 0
             return None
 
-        self._idle_count = 0
         if best == self._candidate:
             self._candidate_count += 1
         else:
-            self._candidate, self._candidate_count = best, 1
+            self._candidate = best
+            self._candidate_count = 1
 
         if self._armed and self._candidate_count >= self.commit_frames:
             self._armed = False
             return best
+
         return None
+
