@@ -1,6 +1,6 @@
 from modules.protocols import ModelFactory
 from tensorflow.keras.models import Sequential # type: ignore
-from tensorflow.keras.layers import Dropout, Input, LSTM, Dense # type: ignore
+from tensorflow.keras.layers import Dropout, Input, LSTM, Dense, GRU # type: ignore
 
 class SimpleModel(ModelFactory):
     @property
@@ -14,12 +14,21 @@ class SimpleModel(ModelFactory):
     def create(self, input_shape: tuple, action_length: int):
         model = Sequential([
             Input(shape=input_shape),
-
-            LSTM(32, return_sequences=True),
-            LSTM(16),
-
-            Dense(16, activation="relu"),
-            Dense(action_length, activation="softmax")
+            GRU(64, return_sequences=True, dropout=0.3, recurrent_dropout=0.1),
+            GRU(32, dropout=0.3),
+            Dense(32, activation="relu", kernel_regularizer=l2(1e-4)),
+            Dropout(0.3),
+            Dense(action_length, activation="softmax"),
         ])
+
+        # model = Sequential([
+        #     Input(shape=input_shape),
+
+        #     LSTM(32, return_sequences=True),
+        #     LSTM(16),
+
+        #     Dense(16, activation="relu"),
+        #     Dense(action_length, activation="softmax")
+        # ])
 
         return model
