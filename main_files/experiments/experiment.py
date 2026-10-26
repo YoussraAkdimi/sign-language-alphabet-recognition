@@ -23,9 +23,9 @@ ACTIONS = ["test"]
 #show_trained_data(DATA_PATH)
 
 # train_model
-#model = train_and_validate_model(model_factory=SimpleModel(), 
-#                                 model_file=TENSORFLOW_MODEL_PATH,
-#                                 nr_of_epochs=400)
+model = train_and_validate_model(model_factory=SimpleModel(), 
+                                model_file=TENSORFLOW_MODEL_PATH,
+                                nr_of_epochs=600)
 
 # load model
 model = load_model(TENSORFLOW_MODEL_PATH)
