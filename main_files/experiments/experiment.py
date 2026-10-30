@@ -7,6 +7,7 @@ from modules.features import HolisticLandmarksFeatureExtracter, FeatureTransform
 from modules.image_annotators import RealLifeTestAnnotator
 from modules.model_factory import (SimpleModel,
                                   SimpleModelWithNoise)
+from modules.features.transformations import FeatureWeights
 
 from modules.process import (record_training_data, 
                             show_trained_data, 
@@ -21,12 +22,16 @@ TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 ACTIONS = ["test"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
-feature_transformer = FeatureTransformer()
+feature_transformer = FeatureTransformer([FeatureWeights(0, 0, 0, 1.0)])
 
 #record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
 
 # show trained data
-#show_trained_data(DATA_PATH, feature_extracter=feature_extracter)
+show_trained_data(DATA_PATH, 
+                  feature_extracter=feature_extracter, 
+                  feature_transformer=feature_transformer)
+
+exit()
 
 # train_model
 model = train_and_validate_model(model_factory=SimpleModelWithNoise(), 

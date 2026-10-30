@@ -3,8 +3,6 @@ import sys
 from pathlib import Path
 import time
 
-from modules.protocols import ExtractFeaturesFromDetectionResult
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from matplotlib import image
@@ -21,6 +19,8 @@ from modules.features import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
 from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_holistic_landmarks_on_image, draw_text_on_image
 from mediapipe.tasks.python.components.containers import NormalizedLandmark
+from modules.features import FeatureTransformer
+from modules.protocols import ExtractFeaturesFromDetectionResult
 
 @dataclass
 class ReconstructedHolisticLandmarks:
@@ -53,7 +53,10 @@ def _reconstruct_landmarks(data: np.ndarray,) -> ReconstructedHolisticLandmarks:
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
-def show_trained_data(data_path: Path, feature_extracter: ExtractFeaturesFromDetectionResult) -> None:
+def show_trained_data(data_path: Path, 
+                      feature_extracter: ExtractFeaturesFromDetectionResult,
+                      feature_transformer: FeatureTransformer) -> None:
+    
     continue_playing = True
 
     try:
@@ -76,6 +79,10 @@ def show_trained_data(data_path: Path, feature_extracter: ExtractFeaturesFromDet
 
                     # load the feature data from file
                     feature = feature_extracter.load_feature(frame_path)
+
+                    # transform (if any defined) the feature
+                    feature = feature_transformer.transform(feature)
+                    
                     data = feature.get_data()
 
                     landmarks = _reconstruct_landmarks(data)

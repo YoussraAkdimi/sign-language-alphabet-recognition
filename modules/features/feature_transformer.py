@@ -15,9 +15,11 @@ class FeatureTransformer:
         self._transformations.append(transformation)
 
     def transform(self, feature: Feature) -> Feature:
-        transformed_data = feature.get_data().copy()
+        #transformed_data = feature.get_data().copy()
 
         for transformation in self._transformations:
-            transformed_data = transformation.transform(transformed_data)
+            feature = transformation.transform(feature)
 
-        return type(feature)(transformed_data)
+        return feature
+    
+        #return type(feature)(transformed_data)
