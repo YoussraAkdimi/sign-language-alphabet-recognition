@@ -13,7 +13,7 @@ from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
 from modules.context import PredictionContext
 from modules.image_annotators import CompositeAnnotator
-from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
+from modules.features import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
 from modules.protocols import GesturePredictionCollector, ImageAnnotator
 from tensorflow.keras.utils import to_categorical # type: ignore

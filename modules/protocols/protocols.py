@@ -1,3 +1,4 @@
+from pathlib import Path
 from typing import ClassVar, Protocol, TYPE_CHECKING
 import cv2.typing as cv2Typing
 from tensorflow.keras.models import Model # type: ignore
@@ -22,11 +23,21 @@ class ImageAnnotator(Protocol):
         """
         ...
 
+class Feature(Protocol):
+    def save(path: Path) -> None:
+        ...
+
+    def get_data(self) -> np.ndarray:
+        ...
+
+    def apply_weights(self, left_hand: float, right_hand: float, pose: float, face: float) -> "Feature":
+        ...
+
 class ExtractFeaturesFromDetectionResult(Protocol):
     feature_length: ClassVar[int]
     
     """Converts a detection result into a data structure suitable for further processing or analysis."""
-    def extract(self, detection_result) -> np.ndarray:
+    def extract(self, detection_result) -> Feature:
         """Converts a detection result into a data structure suitable for further processing or analysis.
         
         Args:
@@ -34,6 +45,9 @@ class ExtractFeaturesFromDetectionResult(Protocol):
         Returns:
             A dictionary containing the converted data.
         """
+        ...
+
+    def load_feature(self, path: Path) -> Feature:
         ...
 
 class ModelFactory(Protocol):
@@ -50,4 +64,8 @@ class ModelFactory(Protocol):
 
 class GesturePredictionCollector(Protocol):
     def add_model_prediction(self, prediction: np.ndarray) -> int | None:
+        ...
+
+class FeatureTransform(Protocol):
+    def transform(self, feature: Feature) -> Feature:
         ...

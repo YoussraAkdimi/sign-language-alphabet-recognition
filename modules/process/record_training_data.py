@@ -14,8 +14,9 @@ from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
 from modules.context import TrainingContext
 from modules.image_annotators import CompositeAnnotator
-from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
+from modules.features import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
+from modules.protocols import ExtractFeaturesFromDetectionResult
 
 TASK_MODEL_PATH: str = './task_models/holistic_landmarker.task'
 
@@ -23,7 +24,8 @@ actions = ["idle"] #['slapen', 'vogel', 'poes' ]
 
 def record_training_data(output_data_path: Path, 
                          actions: list[str], 
-                         no_sequences: int=30, 
+                         feature_extracter: ExtractFeaturesFromDetectionResult,
+                         no_sequences: int = 30, 
                          no_of_frames: int = 30) -> Path:
 
     for action in actions:
@@ -57,7 +59,7 @@ def record_training_data(output_data_path: Path,
     cap, _, camera_name = camera_manager.start_camera()
 
     capture_context = TrainingContext(camera_name)
-    feature_extracter = HolisticLandmarksFeatureExtracter()
+    #feature_extracter = HolisticLandmarksFeatureExtracter()
 
     continue_processing = True
 
@@ -92,13 +94,12 @@ def record_training_data(output_data_path: Path,
 
                             capture_video_data(cap, landmarker, image_annotator, capture_context)
 
-                            features: np.array = feature_extracter.extract(capture_context.detection_result)
+                            feature = feature_extracter.extract(capture_context.detection_result)
 
-                            # Check that the returned number of features is the required length
-                            assert(len(features) == feature_extracter.feature_length)
                             # save the features in a file
                             file_path = output_data_path / capture_context.action / str(capture_context.sequence).zfill(3) / str(capture_context.frame).zfill(3)
-                            np.save(file_path, features)
+                            
+                            feature.save(file_path)
 
                             key = cv2.waitKey(1) & 0xFF
 
