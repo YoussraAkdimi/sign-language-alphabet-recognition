@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from modules.protocols.protocols import Feature
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from matplotlib import image
@@ -20,6 +22,8 @@ from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import load_model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from tensorflow.keras.models import Model # type: ignore
+from modules.protocols import ExtractFeaturesFromDetectionResult
+from modules.features import FeatureTransformer
 
 MEDIAPIPE_MODEL_PATH: str = str(
     Path(__file__).resolve().parents[2] / "task_models" / "holistic_landmarker.task"
@@ -29,6 +33,8 @@ DATA_PATH: Path = Path('./mp_data')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 
 def real_life_test(trained_model: Model, 
+                   feature_extracter: ExtractFeaturesFromDetectionResult,
+                   feature_transformer: FeatureTransformer,
                    gesture_prediction_collector: GesturePredictionCollector, 
                    sequence_length: int= 30,
                    image_annotator: ImageAnnotator = CompositeAnnotator.default_annotator()) -> None:
@@ -65,8 +71,6 @@ def real_life_test(trained_model: Model,
 
     print(f"Read actions: {prediction_context._actions}")
 
-    feature_extracter = HolisticLandmarksFeatureExtracter()
-
     sequence = []
 
     continue_processing = True
@@ -81,12 +85,11 @@ def real_life_test(trained_model: Model,
             while continue_processing:
                 capture_video_data(cap, landmarker, image_annotator, prediction_context)
 
-                features: np.array = feature_extracter.extract(prediction_context.detection_result)
+                # extract the feature from the result and apply transformations (if any)
+                feature = feature_extracter.extract(prediction_context.detection_result)
+                feature = feature_transformer.transform(feature)
 
-                # Check that the returned number of features is the required length
-                assert(len(features) == feature_extracter.feature_length)
-
-                sequence.append(features)
+                sequence.append(feature.get_data())
                 sequence = sequence[-sequence_length:]    # keep last thirty frames
 
                 if len(sequence) == sequence_length:

@@ -22,16 +22,14 @@ TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
 ACTIONS = ["test"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
-feature_transformer = FeatureTransformer([FeatureWeights(0, 0, 0, 1.0)])
+feature_transformer = FeatureTransformer([FeatureWeights(1.0, 1.0, 1.0, 0)])
 
 #record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
 
 # show trained data
-show_trained_data(DATA_PATH, 
-                  feature_extracter=feature_extracter, 
-                  feature_transformer=feature_transformer)
-
-exit()
+# show_trained_data(DATA_PATH, 
+#                   feature_extracter=feature_extracter, 
+#                   feature_transformer=feature_transformer)
 
 # train_model
 model = train_and_validate_model(model_factory=SimpleModelWithNoise(), 
@@ -39,8 +37,6 @@ model = train_and_validate_model(model_factory=SimpleModelWithNoise(),
                                  feature_extracter=feature_extracter,
                                  feature_transformer=feature_transformer,
                                  nr_of_epochs=50)
-
-exit()
 
 # load model
 model = load_model(TENSORFLOW_MODEL_PATH)
@@ -51,5 +47,7 @@ gesture_prediction_collector = EMAPredictionCollector(threshold=0.4,
                                                       idle_index=0)
 
 real_life_test(trained_model=model, 
+               feature_extracter=feature_extracter,
+               feature_transformer=feature_transformer,
                gesture_prediction_collector=gesture_prediction_collector,
                image_annotator=RealLifeTestAnnotator())
