@@ -69,6 +69,9 @@ class GesturePredictionCollector(Protocol):
     def add_model_prediction(self, prediction: np.ndarray) -> int | None:
         ...
 
+    def reset(self) -> None:
+        ...
+
 class FeatureTransform(Protocol):
     def transform(self, feature: Feature) -> Feature:
         ...

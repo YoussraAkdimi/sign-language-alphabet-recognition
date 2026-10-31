@@ -101,6 +101,7 @@ def real_life_test(trained_model: Model,
 
                     if predicted_action_index is not None:
                         action = actions[predicted_action_index]
+
                         print(action)
                     #     if action != "idle":
                     #         if len(sentence) > 0:
