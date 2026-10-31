@@ -33,6 +33,9 @@ class Feature(Protocol):
     def apply_weights(self, left_hand: float, right_hand: float, pose: float, face: float) -> "Feature":
         ...
 
+    def center_at_pose(self) -> "Feature":
+        ...
+
 class ExtractFeaturesFromDetectionResult(Protocol):
     feature_length: ClassVar[int]
     

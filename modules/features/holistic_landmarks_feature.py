@@ -75,6 +75,51 @@ class HolisticLandmarksFeature:
             start = end
 
         return HolisticLandmarksFeature(weighted_data)
+
+    def center_at_pose(self) -> "HolisticLandmarksFeature":
+        centered_data = self._data.copy()
+
+        # Left hand
+        lh_start = 0
+        lh_end = lh_start + self.DataDimensions.LEFT_HAND.value * 3
+        lh = centered_data[lh_start:lh_end].reshape(-1, 3)
+
+        # Right hand
+        rh_start = lh_end
+        rh_end = rh_start + self.DataDimensions.RIGHT_HAND.value * 3
+        rh = centered_data[rh_start:rh_end].reshape(-1, 3)
+
+        # Pose
+        pose_start = rh_end
+        pose_end = pose_start + self.DataDimensions.POSE.value * 3
+        pose = centered_data[pose_start:pose_end].reshape(-1, 3)
+
+        # Face
+        face_start = pose_end
+        face_end = face_start + self.DataDimensions.FACE.value * 3
+        face = centered_data[face_start:face_end].reshape(-1, 3)
+
+        # Calculate global center using shoulder landmarks
+        center = (pose[11] + pose[12]) / 2
+
+        # Center all landmarks relative to the pose
+        lh -= center
+        rh -= center
+        pose -= center
+        face -= center
+
+        return HolisticLandmarksFeature(centered_data)
+
+    # z-normalization
+    def standardize(self,
+                    mean: np.ndarray,
+                    std: np.ndarray) -> "HolisticLandmarksFeature":
+
+        data = self._data.copy()
+
+        data = (data - mean) / np.maximum(std, 1e-8)
+
+        return self.__class__(data)
     
     @classmethod
     def from_detection_result(cls, detection_result: HolisticLandmarkerResult) -> "HolisticLandmarksFeature":
