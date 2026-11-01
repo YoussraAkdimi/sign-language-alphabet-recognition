@@ -11,7 +11,7 @@ dependencies:
   - certifi
   - pip
   - pip:
-      - opencv-contrib-python
+      - opencv-contrib-python==4.11.0.86
       - mediapipe
       - tensorflow
       - tensorboard
