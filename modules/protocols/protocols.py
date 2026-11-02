@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import ClassVar, Protocol, TYPE_CHECKING
-import cv2.typing as cv2Typing
+import cv2.typing as cv2Typing # type: ignore
 from tensorflow.keras.models import Model # type: ignore
 import numpy as np
 

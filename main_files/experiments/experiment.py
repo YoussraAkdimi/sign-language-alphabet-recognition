@@ -18,7 +18,7 @@ from modules.prediction_collectors import EMAPredictionCollector
 from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
-TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.h5')
+TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.keras')
 ACTIONS = ["test"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
@@ -32,11 +32,11 @@ feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0
 #                    feature_transformer=feature_transformer)
 
 # train_model
-# model = train_and_validate_model(model_factory=SimpleModel(), 
-#                                  model_file=TENSORFLOW_MODEL_PATH,
-#                                  feature_extracter=feature_extracter,
-#                                  feature_transformer=feature_transformer,
-#                                  nr_of_epochs=500)
+model = train_and_validate_model(model_factory=SimpleModel(), 
+                                 model_file=TENSORFLOW_MODEL_PATH,
+                                 feature_extracter=feature_extracter,
+                                 feature_transformer=feature_transformer,
+                                 nr_of_epochs=500)
 
 # load model
 model = load_model(TENSORFLOW_MODEL_PATH)
