@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-from modules.features.feature_transformer import FeatureTransformer
-
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
@@ -11,13 +9,16 @@ from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import Model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
-from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
+from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix, classification_report, accuracy_score
 from modules.protocols import ExtractFeaturesFromDetectionResult
+from modules.features.feature_transformer import FeatureTransformer
 
 from modules.protocols import ModelFactory
 from modules.model_factory import SimpleModel
+from modules.utilities import load_dataset
 
 DATA_PATH: Path = Path('./mp_data')
+VALIDATE_PATH: Path = Path('./mp_data')
 LOG_PATH: Path = Path('./logs')
 MODEL_PATH: Path = Path('./output_models')
 
@@ -30,38 +31,20 @@ def train_and_validate_model(model_factory: ModelFactory,
                              feature_transformer: FeatureTransformer,
                              nr_of_epochs: 400) -> Model:
 
-    label_map = {} #{label: num for num, label in enumerate(actions)}
+    dataset, labels, actions = load_dataset(DATA_PATH, 
+                                            feature_extracter=feature_extracter,
+                                            feature_transformer=feature_transformer)
 
-    sequences, labels, actions = [], [], []  # sequence=input, labels=output
-
-    action_num = -1
-
-    for action_path in sorted(DATA_PATH.iterdir()):
-
-        if not action_path.is_dir() or action_path.name.startswith('_'):
-            continue
-
-        action_num += 1
-        action = action_path.name
-        actions.append(action)
-
-        print(f"Num={action_num}, action={action}")
-            
-        for sequence_path in sorted(action_path.iterdir()):
-
-            window = []
-            for frame_path in sorted(sequence_path.iterdir()):
-                feature = feature_extracter.load_feature(frame_path)
-                feature = feature_transformer.transform(feature)
-                
-                window.append(feature.get_data())
-
-            sequences.append(window)
-
-            labels.append(action_num)
-
-    x = np.asarray(sequences, dtype=np.float32)
+    dataset_validation, labels_validation, actions_validation = load_dataset(VALIDATE_PATH,
+                                                                             feature_extracter=feature_extracter,
+                                                                             feature_transformer=feature_transformer)
+ 
+    x = dataset
     y = to_categorical(labels).astype(int)
+
+    x_validation = dataset_validation
+    y_validation = to_categorical(labels_validation).astype(int)
+    
 
     print("Actions:", actions)
     print("Number of sequences:", len(x))
@@ -72,12 +55,13 @@ def train_and_validate_model(model_factory: ModelFactory,
     print("Infinite values:", np.isinf(x).sum())
 
     for action_num, action in enumerate(actions):
-        print(f"{action}: {labels.count(action_num)} sequences")
+        count = np.count_nonzero(labels == action_num)
+        print(f"{action}: {count} sequences")
 
-    print(np.array(sequences).shape)
+    print(np.array(x).shape)
 
     # create a training set and a test set
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05, stratify=labels, random_state=42)
 
     tb_callback = TensorBoard(log_dir=LOG_PATH)
 
@@ -91,30 +75,53 @@ def train_and_validate_model(model_factory: ModelFactory,
 
     model.fit(x_train, y_train, epochs = nr_of_epochs, callbacks=[tb_callback])
 
+    #- VALIDATION STEP -----
+    # Loss and accuracy on the validation set
+    val_loss, val_acc = model.evaluate(x_validation, y_validation)
+    print(f"Validation loss: {val_loss:.4f}, accuracy: {val_acc:.4f}")
+
+    # Per-sequence predictions
+    probs = model.predict(x_validation)
+    y_pred = np.argmax(probs, axis=1)
+    y_true = np.asarray(labels_validation)
+
+    print("Accuracy:", accuracy_score(y_true, y_pred))
+
+    print("Confusion matrix:")
+    print("-----------------")
+    
+    print(confusion_matrix(y_true, y_pred))
+
+    print("Classification report")
+    print("---------------------")
+
+    print(classification_report(y_true, y_pred, target_names=actions))
+    #----------------
+
     model.summary()  
 
     model.save(model_file)
 
-    # test a prediction
-    prediction = model.predict(x_test)
+    # # test a prediction
+    # prediction = model.predict(x_test)
 
-    predicted_action = actions[np.argmax(prediction[0])]
-    expected_action = actions[np.argmax(y_test[0])]
+    # predicted_action = actions[np.argmax(prediction[0])]
+    # expected_action = actions[np.argmax(y_test[0])]
 
-    print(prediction)
-    print(predicted_action)
-    print(expected_action)
+    # print(prediction)
+    # print(predicted_action)
+    # print(expected_action)
 
-    # validate model
+    # # validate model
 
-    yhat = model.predict(x_test)
+    # yhat = model.predict(x_test)
 
-    ytrue = np.argmax(y_test, axis=1).tolist()
-    yhat = np.argmax(yhat, axis=1).tolist()
+    # ytrue = np.argmax(y_test, axis=1).tolist()
+    # yhat = np.argmax(yhat, axis=1).tolist()
 
-    multilabel_confusion_matrix(ytrue, yhat)
+    # multilabel_confusion_matrix(ytrue, yhat)
 
-    score = accuracy_score(ytrue, yhat)
-    print(f"Accuracy score: {score}")
+    # score = accuracy_score(ytrue, yhat)
+    # print(f"Accuracy score: {score}")
 
     return model
