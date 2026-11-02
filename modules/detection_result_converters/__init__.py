@@ -1,3 +1,0 @@
-from .holistic_landmarks_feature_extracter import HolisticLandmarksFeatureExtracter
-
-__all__ = ["HolisticLandmarksFeatureExtracter"]

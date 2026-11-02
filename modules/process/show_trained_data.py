@@ -15,10 +15,12 @@ from cv2_enumerate_cameras import enumerate_cameras
 from modules.utilities import CameraManager
 from modules.context import TrainingContext
 from modules.image_annotators import CompositeAnnotator
-from modules.detection_result_converters import HolisticLandmarksFeatureExtracter
+from modules.features import HolisticLandmarksFeatureExtracter
 from modules.logic.video_loop import capture_video_data
 from modules.utilities.drawing import HorizontalPosition, VerticalPosition, draw_holistic_landmarks_on_image, draw_text_on_image
 from mediapipe.tasks.python.components.containers import NormalizedLandmark
+from modules.features import FeatureTransformer
+from modules.protocols import ExtractFeaturesFromDetectionResult
 
 @dataclass
 class ReconstructedHolisticLandmarks:
@@ -51,7 +53,10 @@ def _reconstruct_landmarks(data: np.ndarray,) -> ReconstructedHolisticLandmarks:
 
 MODEL_PATH: str = '././models/holistic_landmarker.task'
 
-def show_trained_data(data_path: Path) -> None:
+def show_trained_data(data_path: Path, 
+                      feature_extracter: ExtractFeaturesFromDetectionResult,
+                      feature_transformer: FeatureTransformer) -> None:
+    
     continue_playing = True
 
     try:
@@ -72,11 +77,13 @@ def show_trained_data(data_path: Path) -> None:
                     if not frame_path.is_file or not continue_playing:
                         continue
 
-                    # # save the features in a file
-                    # npy_path = file_path = DATA_PATH / action / str(sequence) / f"{frame}.npy"
-                    data = np.load(frame_path)
+                    # load the feature data from file
+                    feature = feature_extracter.load_feature(frame_path)
 
-                    #print(data)
+                    # transform (if any defined) the feature
+                    feature = feature_transformer.transform(feature)
+                    
+                    data = feature.get_data()
 
                     landmarks = _reconstruct_landmarks(data)
 

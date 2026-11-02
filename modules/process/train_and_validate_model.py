@@ -1,6 +1,8 @@
 import sys
 from pathlib import Path
 
+from modules.features.feature_transformer import FeatureTransformer
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
@@ -10,6 +12,7 @@ from tensorflow.keras.utils import to_categorical # type: ignore
 from tensorflow.keras.models import Model # type: ignore
 from tensorflow.keras.callbacks import TensorBoard # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
+from modules.protocols import ExtractFeaturesFromDetectionResult
 
 from modules.protocols import ModelFactory
 from modules.model_factory import SimpleModel
@@ -21,7 +24,11 @@ MODEL_PATH: Path = Path('./output_models')
 # Choose the model here
 model_factory: ModelFactory = SimpleModel()
 
-def train_and_validate_model(model_factory: ModelFactory, model_file: Path, nr_of_epochs: 400) -> Model:
+def train_and_validate_model(model_factory: ModelFactory, 
+                             model_file: Path, 
+                             feature_extracter: ExtractFeaturesFromDetectionResult, 
+                             feature_transformer: FeatureTransformer,
+                             nr_of_epochs: 400) -> Model:
 
     label_map = {} #{label: num for num, label in enumerate(actions)}
 
@@ -44,9 +51,10 @@ def train_and_validate_model(model_factory: ModelFactory, model_file: Path, nr_o
 
             window = []
             for frame_path in sorted(sequence_path.iterdir()):
-                data = np.load(frame_path)
-
-                window.append(data)
+                feature = feature_extracter.load_feature(frame_path)
+                feature = feature_transformer.transform(feature)
+                
+                window.append(feature.get_data())
 
             sequences.append(window)
 
