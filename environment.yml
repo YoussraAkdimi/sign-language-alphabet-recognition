@@ -5,15 +5,16 @@ channels:
 dependencies:
   - python=3.12
   - numpy
+  - pandas
   - matplotlib
   - scikit-learn
   - cv2-enumerate-cameras
   - certifi
+  - jupyter
+  - ipykernel
   - pip
   - pip:
       - opencv-contrib-python
       - mediapipe
       - tensorflow
       - tensorboard
-
-  
