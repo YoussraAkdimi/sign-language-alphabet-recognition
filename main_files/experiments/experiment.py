@@ -6,7 +6,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from modules.features import HolisticLandmarksFeatureExtracter, FeatureTransformer
 from modules.image_annotators import RealLifeTestAnnotator
 from modules.model_factory import (SimpleModel,
-                                  SimpleModelWithNoise)
+                                   SimpleModelWithNoise,
+                                   SimpleLSTMModel,
+                                   SimpleLSTMModelWithNoise)
+
 from modules.features.transformations import (FeatureWeights, 
                                               FeatureCentering,
                                               FeatureNormalizer,
@@ -28,24 +31,24 @@ ACTIONS = ["test"]
 feature_extracter = HolisticLandmarksFeatureExtracter()
 #feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
 feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(), FeatureWeights(10.0, 10.0, 2.0, 0.5)])
-feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureNormalizer(), FeatureCentering(), FeatureCentering()])
+feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
 
 
 #record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
 
 # show trained data
-show_trained_data(VALIDATION_DATA_PATH, 
+show_trained_data(DATA_PATH, 
                    feature_extracter=feature_extracter, 
                    feature_transformer=feature_transformer)
 
 
 # train_model
-model = train_and_validate_model(model_factory=SimpleModel(),
+model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise(),
                          feature_extracter=feature_extracter,
                          feature_transformer=feature_transformer,
                          train_dataset_path=DATA_PATH,
                          validation_dataset_path=VALIDATION_DATA_PATH,
-                         nr_of_epochs=100)
+                         nr_of_epochs=50)
 
 save_model(model, TENSORFLOW_MODEL_PATH)
 

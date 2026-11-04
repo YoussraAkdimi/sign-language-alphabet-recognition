@@ -72,26 +72,27 @@ def train_and_validate_model(model_factory: ModelFactory,
         metrics=["categorical_accuracy"]
     )
 
-    # stop training if the validation loss does not improve for 20 epochs, and restore the best weights
+    # stop training if the validation loss does notimprove for 20 epochs, and restore the best weights
     # early_stopping = EarlyStopping(
     #     monitor="val_loss",
     #     patience=20,
     #     restore_best_weights=True
     # )
 
-    checkpoint = ModelCheckpoint(filepath=MODEL_PATH / 'best_model.keras',
-                                 monitor='val_loss',
-                                 mode='min',
-                                 save_best_only=True,
-                                 verbose=1)
+    # This can be added the callback to save the best model
+    # checkpoint = ModelCheckpoint(filepath=MODEL_PATH / 'best_model.keras',
+    #                              monitor='val_loss',
+    #                              mode='min',
+    #                              save_best_only=True,
+    #                              verbose=1)
 
     # verbose=1 means show progress bar, verbose=2 means show one line per epoch, verbose=0 means silent
-    model.fit(x_train, 
-              y_train, 
-              epochs = nr_of_epochs, 
-              callbacks=[tb_callback, checkpoint], 
-              validation_data=(x_validation, y_validation),
-              verbose=0)
+    history = model.fit(x_train, 
+                        y_train, 
+                        epochs = nr_of_epochs, 
+                        callbacks=[tb_callback], 
+                        validation_data=(x_validation, y_validation),
+                        verbose=1)
 
     #- VALIDATION STEP -----
     # Loss and accuracy on the validation set
@@ -116,7 +117,8 @@ def train_and_validate_model(model_factory: ModelFactory,
     print(classification_report(y_true, y_pred, target_names=actions))
     #----------------
 
-    best_model = load_model(MODEL_PATH / 'best_model.keras')
-    best_model.summary()  
+    # Use this if you want to reload the best model after training
+    # best_model = load_model(MODEL_PATH / 'best_model.keras')
+    # best_model.summary()  
 
-    return best_model
+    return model, history
