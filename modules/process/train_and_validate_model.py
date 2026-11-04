@@ -84,13 +84,19 @@ def train_and_validate_model(model_factory: ModelFactory,
                         validation_data=(x_validation, y_validation),
                         verbose=1)
 
-    #- VALIDATION STEP -----
-    # Loss and accuracy on the validation set
-    val_loss, val_acc = model.evaluate(x_validation, y_validation)
+    # ----- VALIDATION STEP -----
+
+    val_loss, val_acc = model.evaluate(
+        x_validation,
+        y_validation,
+        verbose=0
+    )
+
     print(f"Validation loss: {val_loss:.4f}, accuracy: {val_acc:.4f}")
 
     # Per-sequence predictions
-    probs = model.predict(x_validation)
+    probs = model(x_validation, training=False).numpy()
+
     y_pred = np.argmax(probs, axis=1)
     y_true = np.asarray(validation_labels)
 
@@ -98,13 +104,16 @@ def train_and_validate_model(model_factory: ModelFactory,
 
     print("Confusion matrix:")
     print("-----------------")
-    
     print(confusion_matrix(y_true, y_pred))
 
     print("Classification report")
     print("---------------------")
-
-    print(classification_report(y_true, y_pred, target_names=actions))
+    print(classification_report(
+        y_true,
+        y_pred,
+        target_names=actions,
+        zero_division=0
+    ))
     #----------------
 
     # Use this if you want to reload the best model after training

@@ -9,7 +9,7 @@ from modules.features.feature_transformer import FeatureTransformer
 
 def load_dataset(root: Path,
                  feature_extracter: ExtractFeaturesFromDetectionResult, 
-                 feature_transformer: FeatureTransformer,
+                 feature_transformer: FeatureTransformer = FeatureTransformer([]),
                  expected_no_of_frames: int = 30) -> tuple[np.ndarray, np.ndarray, list[str]]:
 
     sequences = []

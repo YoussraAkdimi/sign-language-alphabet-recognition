@@ -61,8 +61,6 @@ model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise
                          validation_labels=x_validation_labels,
                          nr_of_epochs=50)
 
-exit()
-
 save_model(model, TENSORFLOW_MODEL_PATH)
 
 # load model
