@@ -10,6 +10,8 @@ from mediapipe.tasks.python.components.containers.landmark import (
     NormalizedLandmark,
 )
 
+from modules import features
+
 class HolisticLandmarksFeature:
   
     # Left hand   21 * x * y * z =   63 values
@@ -116,28 +118,85 @@ class HolisticLandmarksFeature:
 
         normalized_data = self._data.copy()
 
-        # Extract pose landmarks
-        pose_start = (
-            self.DataDimensions.LEFT_HAND.value * 3
-            + self.DataDimensions.RIGHT_HAND.value * 3
-        )
-        pose_end = pose_start + self.DataDimensions.POSE.value * 3
+        # Reshape flat feature vector into landmarks
+        landmarks = normalized_data.reshape(-1, 3)
 
-        pose = normalized_data[pose_start:pose_end].reshape(-1, 3)
+        # Identify valid landmarks
+        valid_mask = np.any(landmarks != 0, axis=1)
 
-        # Calculate shoulder width
-        shoulder_width = np.linalg.norm(pose[11] - pose[12])
-
-        # Avoid division by zero
-        if shoulder_width < 1e-8:
+        if not valid_mask.any():
             return self
 
-        # Normalize all landmarks
-        normalized_data /= shoulder_width
+        valid_landmarks = landmarks[valid_mask]
+
+        # Calculate bounding box
+        min_xy = valid_landmarks[:, :2].min(axis=0)
+        max_xy = valid_landmarks[:, :2].max(axis=0)
+
+        # Calculate dimensions
+        dimensions = max_xy - min_xy
+
+        # Preserve aspect ratio using a single scale factor
+        scale = np.max(dimensions)
+
+        if scale < 1e-8:
+            return self
+
+        # Normalize X and Y
+        landmarks[valid_mask, :2] = (
+            valid_landmarks[:, :2] - min_xy
+        ) / scale
 
         return self.__class__(normalized_data)
 
-    # z-normalization
+    # def remove_leg_data(self) -> "HolisticLandmarksFeature":
+    #     if self._data is None:
+    #         return self
+
+    #     modified_data = self._data.copy()
+
+    #     # Calculate pose offset
+    #     pose_start = (
+    #         self.DataDimensions.LEFT_HAND.value +
+    #         self.DataDimensions.RIGHT_HAND.value
+    #     ) * 3
+
+    #     pose_end = pose_start + self.DataDimensions.POSE.value * 3
+
+    #     # Extract pose data
+    #     pose = modified_data[pose_start:pose_end].reshape(-1, 3)
+
+    #     # Preserve shoulders (landmarks 11 and 12)
+    #     shoulders = pose[[11, 12]].copy()
+
+    #     # Zero out all pose landmarks
+    #     pose[:] = 0
+
+    #     # Restore shoulders
+    #     pose[[11, 12]] = shoulders
+
+    #     return self.__class__(modified_data)
+        
+    def remove_leg_data(self) -> "HolisticLandmarksFeature":
+        if self._data is None:
+            return self
+
+        modified_data = self._data.copy()
+
+        # Calculate pose offset in the flat feature vector
+        pose_start = (
+            self.DataDimensions.LEFT_HAND.value +
+            self.DataDimensions.RIGHT_HAND.value
+        ) * 3
+
+        # Remove pose landmarks 25–32
+        leg_start = pose_start + 25 * 3
+        leg_end = pose_start + 33 * 3
+
+        modified_data[leg_start:leg_end] = 0
+
+        return self.__class__(modified_data)
+    
     def standardize(self,
                     mean: np.ndarray,
                     std: np.ndarray) -> "HolisticLandmarksFeature":

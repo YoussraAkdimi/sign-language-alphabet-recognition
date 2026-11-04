@@ -7,8 +7,8 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 from tensorflow.keras.utils import to_categorical # type: ignore
-from tensorflow.keras.models import Model # type: ignore
-from tensorflow.keras.callbacks import TensorBoard # type: ignore
+from tensorflow.keras.models import Model, load_model # type: ignore
+from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix, classification_report, accuracy_score
 from modules.protocols import ExtractFeaturesFromDetectionResult
 from modules.features.feature_transformer import FeatureTransformer
@@ -37,17 +37,15 @@ def train_and_validate_model(model_factory: ModelFactory,
                                             feature_extracter=feature_extracter,
                                             feature_transformer=feature_transformer)
 
-    # load the validation dataset
-    dataset_validation, labels_validation, actions_validation = load_dataset(validation_dataset_path,
-                                                                             feature_extracter=feature_extracter,
-                                                                             feature_transformer=feature_transformer)
- 
     x = dataset
     y = to_categorical(labels).astype(int)
 
+    # load the validation dataset
+    dataset_validation, labels_validation, actions_validation = load_dataset(validation_dataset_path,
+                                                                             feature_extracter=feature_extracter,
+                                                                             feature_transformer=feature_transformer)    
     x_validation = dataset_validation
     y_validation = to_categorical(labels_validation).astype(int)
-    
 
     print("Actions:", actions)
     print("Number of sequences:", len(x))
@@ -61,11 +59,9 @@ def train_and_validate_model(model_factory: ModelFactory,
         count = np.count_nonzero(labels == action_num)
         print(f"{action}: {count} sequences")
 
-    print(np.array(x).shape)
-
-    # create a training set and a test set
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05, stratify=labels, random_state=42)
-
+#    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05, stratify=labels, random_state=42)
+    x_train = x
+    y_train = y
     tb_callback = TensorBoard(log_dir=LOG_PATH)
 
     model = model_factory.create(input_shape=x.shape[1:], action_length=len(actions))
@@ -76,7 +72,26 @@ def train_and_validate_model(model_factory: ModelFactory,
         metrics=["categorical_accuracy"]
     )
 
-    model.fit(x_train, y_train, epochs = nr_of_epochs, callbacks=[tb_callback])
+    # stop training if the validation loss does not improve for 20 epochs, and restore the best weights
+    # early_stopping = EarlyStopping(
+    #     monitor="val_loss",
+    #     patience=20,
+    #     restore_best_weights=True
+    # )
+
+    checkpoint = ModelCheckpoint(filepath=MODEL_PATH / 'best_model.keras',
+                                 monitor='val_loss',
+                                 mode='min',
+                                 save_best_only=True,
+                                 verbose=1)
+
+    # verbose=1 means show progress bar, verbose=2 means show one line per epoch, verbose=0 means silent
+    model.fit(x_train, 
+              y_train, 
+              epochs = nr_of_epochs, 
+              callbacks=[tb_callback, checkpoint], 
+              validation_data=(x_validation, y_validation),
+              verbose=0)
 
     #- VALIDATION STEP -----
     # Loss and accuracy on the validation set
@@ -101,28 +116,7 @@ def train_and_validate_model(model_factory: ModelFactory,
     print(classification_report(y_true, y_pred, target_names=actions))
     #----------------
 
-    model.summary()  
+    best_model = load_model(MODEL_PATH / 'best_model.keras')
+    best_model.summary()  
 
-    # # test a prediction
-    # prediction = model.predict(x_test)
-
-    # predicted_action = actions[np.argmax(prediction[0])]
-    # expected_action = actions[np.argmax(y_test[0])]
-
-    # print(prediction)
-    # print(predicted_action)
-    # print(expected_action)
-
-    # # validate model
-
-    # yhat = model.predict(x_test)
-
-    # ytrue = np.argmax(y_test, axis=1).tolist()
-    # yhat = np.argmax(yhat, axis=1).tolist()
-
-    # multilabel_confusion_matrix(ytrue, yhat)
-
-    # score = accuracy_score(ytrue, yhat)
-    # print(f"Accuracy score: {score}")
-
-    return model
+    return best_model

@@ -36,6 +36,12 @@ class Feature(Protocol):
     def center_at_pose(self) -> "Feature":
         ...
 
+    def normalize(self) -> "Feature":
+        ...
+
+    def remove_leg_data(self) -> "Feature":
+        ...
+        
 class ExtractFeaturesFromDetectionResult(Protocol):
     feature_length: ClassVar[int]
     

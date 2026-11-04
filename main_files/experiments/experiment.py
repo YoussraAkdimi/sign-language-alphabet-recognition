@@ -7,7 +7,10 @@ from modules.features import HolisticLandmarksFeatureExtracter, FeatureTransform
 from modules.image_annotators import RealLifeTestAnnotator
 from modules.model_factory import (SimpleModel,
                                   SimpleModelWithNoise)
-from modules.features.transformations import FeatureWeights, FeatureCentering
+from modules.features.transformations import (FeatureWeights, 
+                                              FeatureCentering,
+                                              FeatureNormalizer,
+                                              FeatureRemoveLegData)
 
 from modules.process import (record_training_data, 
                             show_trained_data, 
@@ -18,24 +21,32 @@ from modules.utilities.file import save_model
 from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
+VALIDATION_DATA_PATH: Path = Path('./mp_data_new_test_different_idle')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.keras')
 ACTIONS = ["test"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
-feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
+#feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
+feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(), FeatureWeights(10.0, 10.0, 2.0, 0.5)])
+feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureNormalizer(), FeatureCentering(), FeatureCentering()])
+
 
 #record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
 
 # show trained data
-# show_trained_data(DATA_PATH, 
-#                    feature_extracter=feature_extracter, 
-#                    feature_transformer=feature_transformer)
+show_trained_data(VALIDATION_DATA_PATH, 
+                   feature_extracter=feature_extracter, 
+                   feature_transformer=feature_transformer)
+
 
 # train_model
-model = train_and_validate_model(model_factory=SimpleModel(), 
-                                 feature_extracter=feature_extracter,
-                                 feature_transformer=feature_transformer,
-                                 nr_of_epochs=500)
+model = train_and_validate_model(model_factory=SimpleModel(),
+                         feature_extracter=feature_extracter,
+                         feature_transformer=feature_transformer,
+                         train_dataset_path=DATA_PATH,
+                         validation_dataset_path=VALIDATION_DATA_PATH,
+                         nr_of_epochs=100)
+
 save_model(model, TENSORFLOW_MODEL_PATH)
 
 # load model
