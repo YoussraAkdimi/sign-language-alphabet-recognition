@@ -26,16 +26,19 @@ MODEL_PATH: Path = Path('./output_models')
 model_factory: ModelFactory = SimpleModel()
 
 def train_and_validate_model(model_factory: ModelFactory, 
-                             model_file: Path, 
                              feature_extracter: ExtractFeaturesFromDetectionResult, 
                              feature_transformer: FeatureTransformer,
-                             nr_of_epochs: 400) -> Model:
+                             train_dataset_path: Path = DATA_PATH,
+                             validation_dataset_path: Path = VALIDATE_PATH,
+                             nr_of_epochs: int = 400) -> Model:
 
-    dataset, labels, actions = load_dataset(DATA_PATH, 
+    # load the trining dataset
+    dataset, labels, actions = load_dataset(train_dataset_path, 
                                             feature_extracter=feature_extracter,
                                             feature_transformer=feature_transformer)
 
-    dataset_validation, labels_validation, actions_validation = load_dataset(VALIDATE_PATH,
+    # load the validation dataset
+    dataset_validation, labels_validation, actions_validation = load_dataset(validation_dataset_path,
                                                                              feature_extracter=feature_extracter,
                                                                              feature_transformer=feature_transformer)
  
@@ -99,8 +102,6 @@ def train_and_validate_model(model_factory: ModelFactory,
     #----------------
 
     model.summary()  
-
-    model.save(model_file)
 
     # # test a prediction
     # prediction = model.predict(x_test)

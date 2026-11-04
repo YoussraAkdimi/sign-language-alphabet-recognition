@@ -19,8 +19,6 @@ def load_dataset(root: Path,
     # First, enumerate through the directories that represent actions
     for action_index, action_path in enumerate(sorted(root.iterdir())):
 
-        print(f"Action={action_path.name}")
-
         # If the action directory is prepended with an underscore, ignore it
         if not action_path.is_dir() or action_path.name.startswith('_'):
             continue
@@ -58,3 +56,7 @@ def load_dataset(root: Path,
         np.asarray(labels, dtype=np.int16),
         actions
     )
+
+def save_model(model, model_file: Path) -> None:
+    model_file.parent.mkdir(parents=True, exist_ok=True)
+    model.save(model_file)

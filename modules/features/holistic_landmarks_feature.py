@@ -110,6 +110,33 @@ class HolisticLandmarksFeature:
 
         return HolisticLandmarksFeature(centered_data)
 
+    def normalize(self) -> "HolisticLandmarksFeature":
+        if self._data is None:
+            return self
+
+        normalized_data = self._data.copy()
+
+        # Extract pose landmarks
+        pose_start = (
+            self.DataDimensions.LEFT_HAND.value * 3
+            + self.DataDimensions.RIGHT_HAND.value * 3
+        )
+        pose_end = pose_start + self.DataDimensions.POSE.value * 3
+
+        pose = normalized_data[pose_start:pose_end].reshape(-1, 3)
+
+        # Calculate shoulder width
+        shoulder_width = np.linalg.norm(pose[11] - pose[12])
+
+        # Avoid division by zero
+        if shoulder_width < 1e-8:
+            return self
+
+        # Normalize all landmarks
+        normalized_data /= shoulder_width
+
+        return self.__class__(normalized_data)
+
     # z-normalization
     def standardize(self,
                     mean: np.ndarray,

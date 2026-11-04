@@ -14,7 +14,7 @@ from modules.process import (record_training_data,
                             train_and_validate_model,
                             real_life_test)
 from modules.prediction_collectors import EMAPredictionCollector
-
+from modules.utilities.file import save_model
 from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
@@ -33,10 +33,10 @@ feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0
 
 # train_model
 model = train_and_validate_model(model_factory=SimpleModel(), 
-                                 model_file=TENSORFLOW_MODEL_PATH,
                                  feature_extracter=feature_extracter,
                                  feature_transformer=feature_transformer,
                                  nr_of_epochs=500)
+save_model(model, TENSORFLOW_MODEL_PATH)
 
 # load model
 model = load_model(TENSORFLOW_MODEL_PATH)
