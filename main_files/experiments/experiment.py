@@ -14,13 +14,12 @@ from modules.features.transformations import (FeatureWeights,
                                               FeatureCentering,
                                               FeatureNormalizer,
                                               FeatureRemoveLegData)
-
 from modules.process import (record_training_data, 
                             show_trained_data, 
                             train_and_validate_model,
                             real_life_test)
 from modules.prediction_collectors import EMAPredictionCollector
-from modules.utilities.file import save_model
+from modules.utilities.file import load_dataset, save_model
 from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
@@ -36,19 +35,33 @@ feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCenteri
 
 #record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
 
-# show trained data
-show_trained_data(DATA_PATH, 
-                   feature_extracter=feature_extracter, 
-                   feature_transformer=feature_transformer)
+x_train, x_train_labels, actions = load_dataset(DATA_PATH,
+                                feature_extracter=feature_extracter,
+                                feature_transformer=feature_transformer,
+                                expected_no_of_frames=30)
 
+x_validation, x_validation_labels, actions_validation = load_dataset(VALIDATION_DATA_PATH,
+                                                feature_extracter=feature_extracter,
+                                                feature_transformer=feature_transformer,
+                                                expected_no_of_frames=30)
+
+assert actions == actions_validation
+
+# show trained data
+#show_trained_data(DATA_PATH, 
+#                  feature_extracter=feature_extracter, 
+#                  feature_transformer=feature_transformer)
 
 # train_model
 model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise(),
-                         feature_extracter=feature_extracter,
-                         feature_transformer=feature_transformer,
-                         train_dataset_path=DATA_PATH,
-                         validation_dataset_path=VALIDATION_DATA_PATH,
+                         actions=actions,
+                         train_dataset=x_train,
+                         train_labels=x_train_labels,
+                         validation_dataset=x_validation,
+                         validation_labels=x_validation_labels,
                          nr_of_epochs=50)
+
+exit()
 
 save_model(model, TENSORFLOW_MODEL_PATH)
 

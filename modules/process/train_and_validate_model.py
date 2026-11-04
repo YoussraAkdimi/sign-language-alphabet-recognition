@@ -26,45 +26,35 @@ MODEL_PATH: Path = Path('./output_models')
 model_factory: ModelFactory = SimpleModel()
 
 def train_and_validate_model(model_factory: ModelFactory, 
-                             feature_extracter: ExtractFeaturesFromDetectionResult, 
-                             feature_transformer: FeatureTransformer,
-                             train_dataset_path: Path = DATA_PATH,
-                             validation_dataset_path: Path = VALIDATE_PATH,
+                             actions: list[str],
+                             train_dataset: np.ndarray,
+                             train_labels: np.ndarray,
+                             validation_dataset: np.ndarray,
+                             validation_labels: np.ndarray,
                              nr_of_epochs: int = 400) -> Model:
 
-    # load the trining dataset
-    dataset, labels, actions = load_dataset(train_dataset_path, 
-                                            feature_extracter=feature_extracter,
-                                            feature_transformer=feature_transformer)
 
-    x = dataset
-    y = to_categorical(labels).astype(int)
+    x_train = train_dataset
+    y_train = to_categorical(train_labels).astype(int)
 
-    # load the validation dataset
-    dataset_validation, labels_validation, actions_validation = load_dataset(validation_dataset_path,
-                                                                             feature_extracter=feature_extracter,
-                                                                             feature_transformer=feature_transformer)    
-    x_validation = dataset_validation
-    y_validation = to_categorical(labels_validation).astype(int)
+    x_validation = validation_dataset
+    y_validation = to_categorical(validation_labels).astype(int)
 
     print("Actions:", actions)
-    print("Number of sequences:", len(x))
+    print("Number of sequences:", len(x_train))
     print("Number of classes:", len(actions))
-    print("Input shape:", x.shape)
-    print("Input dtype:", x.dtype)
-    print("NaN values:", np.isnan(x).sum())
-    print("Infinite values:", np.isinf(x).sum())
+    print("Input shape:", x_train.shape)
+    print("Input dtype:", x_train.dtype)
+    print("NaN values:", np.isnan(x_train).sum())
+    print("Infinite values:", np.isinf(x_train).sum())
 
-    for action_num, action in enumerate(actions):
-        count = np.count_nonzero(labels == action_num)
-        print(f"{action}: {count} sequences")
+    # for action_num, action in enumerate(actions):
+    #     count = np.count_nonzero(labels == action_num)
+    #     print(f"{action}: {count} sequences")
 
-#    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.05, stratify=labels, random_state=42)
-    x_train = x
-    y_train = y
     tb_callback = TensorBoard(log_dir=LOG_PATH)
 
-    model = model_factory.create(input_shape=x.shape[1:], action_length=len(actions))
+    model = model_factory.create(input_shape=x_train.shape[1:], action_length=len(actions))
 
     model.compile(
         optimizer="adam",
@@ -102,7 +92,7 @@ def train_and_validate_model(model_factory: ModelFactory,
     # Per-sequence predictions
     probs = model.predict(x_validation)
     y_pred = np.argmax(probs, axis=1)
-    y_true = np.asarray(labels_validation)
+    y_true = np.asarray(validation_labels)
 
     print("Accuracy:", accuracy_score(y_true, y_pred))
 
