@@ -23,9 +23,10 @@ from modules.utilities.file import load_dataset, save_model
 from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
+DATA_PATH_VALIDATION: Path = Path('./mp_data_validation')
 VALIDATION_DATA_PATH: Path = Path('./mp_data_new_test_different_idle')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.keras')
-ACTIONS = ["test"]
+ACTIONS = ["idle", "poes", "slapen", "vogel"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
 #feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
@@ -33,7 +34,9 @@ feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(
 feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
 
 
-#record_training_data(DATA_PATH, ACTIONS, feature_extracter=feature_extracter)
+record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter)
+
+exit()
 
 x_train, x_train_labels, actions = load_dataset(DATA_PATH,
                                 feature_extracter=feature_extracter,
