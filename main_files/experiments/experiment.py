@@ -24,7 +24,7 @@ from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
 DATA_PATH_VALIDATION: Path = Path('./mp_data_validation')
-VALIDATION_DATA_PATH: Path = Path('./mp_data_new_test_different_idle')
+DATA_PATH_TEST: Path = Path('./mp_data_new_test_different_idle')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.keras')
 ACTIONS = ["idle", "poes", "slapen", "vogel"]
 
@@ -34,16 +34,14 @@ feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(
 feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
 
 
-record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter)
-
-exit()
+#record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter)
 
 x_train, x_train_labels, actions = load_dataset(DATA_PATH,
                                 feature_extracter=feature_extracter,
                                 feature_transformer=feature_transformer,
                                 expected_no_of_frames=30)
 
-x_validation, x_validation_labels, actions_validation = load_dataset(VALIDATION_DATA_PATH,
+x_validation, x_validation_labels, actions_validation = load_dataset(DATA_PATH_VALIDATION,
                                                 feature_extracter=feature_extracter,
                                                 feature_transformer=feature_transformer,
                                                 expected_no_of_frames=30)
