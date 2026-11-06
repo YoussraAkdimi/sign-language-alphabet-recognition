@@ -149,34 +149,17 @@ class HolisticLandmarksFeature:
 
         return self.__class__(normalized_data)
 
-    # def remove_leg_data(self) -> "HolisticLandmarksFeature":
-    #     if self._data is None:
-    #         return self
+    def remove_z_coordinates(self) -> "HolisticLandmarksFeature":
+        if self._data is None:
+            return self
 
-    #     modified_data = self._data.copy()
+        modified_data = self._data.copy()
 
-    #     # Calculate pose offset
-    #     pose_start = (
-    #         self.DataDimensions.LEFT_HAND.value +
-    #         self.DataDimensions.RIGHT_HAND.value
-    #     ) * 3
+        # Set z-coordinates to zero (every third element)
+        modified_data[2::3] = 0
 
-    #     pose_end = pose_start + self.DataDimensions.POSE.value * 3
-
-    #     # Extract pose data
-    #     pose = modified_data[pose_start:pose_end].reshape(-1, 3)
-
-    #     # Preserve shoulders (landmarks 11 and 12)
-    #     shoulders = pose[[11, 12]].copy()
-
-    #     # Zero out all pose landmarks
-    #     pose[:] = 0
-
-    #     # Restore shoulders
-    #     pose[[11, 12]] = shoulders
-
-    #     return self.__class__(modified_data)
-        
+        return self.__class__(modified_data)
+            
     def remove_leg_data(self) -> "HolisticLandmarksFeature":
         if self._data is None:
             return self

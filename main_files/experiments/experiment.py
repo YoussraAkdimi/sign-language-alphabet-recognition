@@ -13,7 +13,9 @@ from modules.model_factory import (SimpleModel,
 from modules.features.transformations import (FeatureWeights, 
                                               FeatureCentering,
                                               FeatureNormalizer,
-                                              FeatureRemoveLegData)
+                                              FeatureRemoveLegData,
+                                              FeatureRemoveZCoordinates)
+
 from modules.process import (record_training_data, 
                             show_trained_data, 
                             train_and_validate_model,
@@ -32,6 +34,7 @@ feature_extracter = HolisticLandmarksFeatureExtracter()
 #feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
 feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(), FeatureWeights(10.0, 10.0, 2.0, 0.5)])
 feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
+feature_transformer = FeatureTransformer([FeatureRemoveZCoordinates()])
 
 
 #record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter)
@@ -41,6 +44,8 @@ x_train, x_train_labels, actions = load_dataset(DATA_PATH,
                                 feature_transformer=feature_transformer,
                                 expected_no_of_frames=30)
 
+print(x_train[1:5])
+
 x_validation, x_validation_labels, actions_validation = load_dataset(DATA_PATH_VALIDATION,
                                                 feature_extracter=feature_extracter,
                                                 feature_transformer=feature_transformer,
@@ -48,10 +53,14 @@ x_validation, x_validation_labels, actions_validation = load_dataset(DATA_PATH_V
 
 assert actions == actions_validation
 
+exit()
+
 # show trained data
-#show_trained_data(DATA_PATH, 
-#                  feature_extracter=feature_extracter, 
-#                  feature_transformer=feature_transformer)
+show_trained_data(DATA_PATH, 
+                 feature_extracter=feature_extracter, 
+                 feature_transformer=feature_transformer)
+
+exit()
 
 # train_model
 model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise(),
