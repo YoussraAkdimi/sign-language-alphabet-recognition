@@ -32,6 +32,10 @@ class CameraManager:
         # do some checking here if the index is allowed
 
         self._cap  = cv2.VideoCapture(self._cameras[camera_index].index, cv2.CAP_AVFOUNDATION)
+
+        fps = self._cap.get(cv2.CAP_PROP_FPS)
+        print(f"FPS: {fps}")
+
         self._current_camera_index = camera_index
 
         return self._cap, self._current_camera_index, self._cameras[camera_index].name
