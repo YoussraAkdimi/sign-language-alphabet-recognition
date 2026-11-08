@@ -5,6 +5,11 @@ from modules.context.capture_context import CaptureContext
 from modules.protocols.protocols import ImageAnnotator
 
 def capture_video_data(capture_device, landmarker, image_annotator: ImageAnnotator, capture_context: CaptureContext):
+    """
+    A reusable function to capture video data from a specified capture device, 
+    detect hand landmarks using the provided landmarker,
+    annotate the image with visual information, and display the annotated frame in a window.
+    """
     ret, frame = capture_device.read()
     if not ret:
         print("Failed to grab frame")

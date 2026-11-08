@@ -6,6 +6,9 @@ from modules.protocols import Feature
 import numpy as np
 
 class FeatureRemoveZCoordinates:
+    """
+    A class that removes the Z coordinates from the features of a given Feature object.
+    """
     def __init__(self):
         pass
 

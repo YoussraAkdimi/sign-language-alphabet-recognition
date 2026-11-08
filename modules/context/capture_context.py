@@ -13,6 +13,9 @@ class CaptureContext:
     """
 
     def __init__(self, camera_name: str):
+        """
+        Initialize the CaptureContext with the specified camera name.
+        """
         self._camera_name = camera_name
         self._start_time = None
         self._detection_result = None

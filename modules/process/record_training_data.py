@@ -26,7 +26,8 @@ def record_training_data(output_data_path: Path,
                          actions: list[str], 
                          feature_extracter: ExtractFeaturesFromDetectionResult,
                          no_sequences: int = 30, 
-                         no_of_frames: int = 30) -> Path:
+                         no_of_frames: int = 30,
+                         whatIf: bool = False) -> Path:
 
     for action in actions:
         for sequence in range(no_sequences):
@@ -96,10 +97,13 @@ def record_training_data(output_data_path: Path,
 
                             feature = feature_extracter.extract(capture_context.detection_result)
 
-                            # save the features in a file
-                            file_path = output_data_path / capture_context.action / str(capture_context.sequence).zfill(3) / str(capture_context.frame).zfill(3)
-                            
-                            feature.save(file_path)
+                            # The whatIf parameter was added to run
+                            # the code without saving the features to a file.
+                            if not whatIf:
+                                # save the features in a file
+                                file_path = output_data_path / capture_context.action / str(capture_context.sequence).zfill(3) / str(capture_context.frame).zfill(3)
+                                
+                                feature.save(file_path)
 
                             key = cv2.waitKey(1) & 0xFF
 

@@ -3,6 +3,10 @@ import numpy as np
 from modules.context.capture_context import CaptureContext
 
 class PredictionContext(CaptureContext):
+    """
+    A class that encapsulates the context of a prediction session, including the camera number,
+    the current frame, the timestamp in milliseconds, and the model prediction.
+    """
     def __init__(self, camera_name: str, actions: list[str]):
         super().__init__(camera_name)
 

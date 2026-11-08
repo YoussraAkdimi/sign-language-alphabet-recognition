@@ -1,7 +1,16 @@
 from modules.context.capture_context import CaptureContext
 
 class TrainingContext(CaptureContext):
+    """
+    A class that encapsulates the context of a training session, including the camera number,
+    the current frame, the timestamp in milliseconds, and the action being captured.
+    """
+
     def __init__(self, camera_name: str):
+        """
+        Initialize the TrainingContext with the specified camera name.
+        """
+
         super().__init__(camera_name)
 
         self._action = None
@@ -71,8 +80,14 @@ class TrainingContext(CaptureContext):
 
     @property
     def countdown_value(self) -> int | None:
+        """
+        Current countdown value or None if no value set
+        """
         return self._countdown_value
 
     @countdown_value.setter
     def countdown_value(self, value: int) -> None:
+        """
+        Set the countdown value.
+        """
         self._countdown_value = value

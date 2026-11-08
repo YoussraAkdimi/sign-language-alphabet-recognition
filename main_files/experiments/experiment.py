@@ -36,15 +36,14 @@ feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(
 feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
 feature_transformer = FeatureTransformer([FeatureRemoveZCoordinates()])
 
-
-#record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter)
+# set WhatIfMode to False to record training data, True to skip recording and just run the rest of the code
+whatIfMode = True
+record_training_data(DATA_PATH_VALIDATION, ACTIONS, feature_extracter=feature_extracter, whatIf=whatIfMode)
 
 x_train, x_train_labels, actions = load_dataset(DATA_PATH,
                                 feature_extracter=feature_extracter,
                                 feature_transformer=feature_transformer,
                                 expected_no_of_frames=30)
-
-print(x_train[1:5])
 
 x_validation, x_validation_labels, actions_validation = load_dataset(DATA_PATH_VALIDATION,
                                                 feature_extracter=feature_extracter,
@@ -53,14 +52,10 @@ x_validation, x_validation_labels, actions_validation = load_dataset(DATA_PATH_V
 
 assert actions == actions_validation
 
-exit()
-
 # show trained data
 show_trained_data(DATA_PATH, 
                  feature_extracter=feature_extracter, 
                  feature_transformer=feature_transformer)
-
-exit()
 
 # train_model
 model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise(),

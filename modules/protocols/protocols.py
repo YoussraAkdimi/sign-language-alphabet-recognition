@@ -24,6 +24,9 @@ class ImageAnnotator(Protocol):
         ...
 
 class Feature(Protocol):
+    """
+    Host all data and operations on a single feature, which is a collection of landmarks or other data points.
+    """
     def save(path: Path) -> None:
         ...
 
@@ -41,14 +44,21 @@ class Feature(Protocol):
 
     def remove_leg_data(self) -> "Feature":
         ...
-        
+
+    def remove_z_coordinates(self) -> " Feature":
+        ...
+
 class ExtractFeaturesFromDetectionResult(Protocol):
+    """
+    Converts a detection result into a data structure suitable for further processing or analysis.
+    """
+
     feature_length: ClassVar[int]
     
-    """Converts a detection result into a data structure suitable for further processing or analysis."""
     def extract(self, detection_result) -> Feature:
-        """Converts a detection result into a data structure suitable for further processing or analysis.
-        
+        """
+        Converts a detection result into a data structure suitable for further processing or analysis.
+
         Args:
             detection_result: The result of the detection, which may contain landmarks or other information to convert.
         Returns:
@@ -57,21 +67,42 @@ class ExtractFeaturesFromDetectionResult(Protocol):
         ...
 
     def load_feature(self, path: Path) -> Feature:
+        """
+        Loads a feature from a file.
+
+        Args:
+            path: The path to the file containing the feature data.
+
+        Returns:
+            The loaded feature.
+        """
         ...
 
 class ModelFactory(Protocol):
+    """
+    A factory for creating machine learning models.
+    """
     def create(self, input_shape: tuple, action_length: int) -> Model:
         ...
 
     @property
     def name(self) -> str:
+        """
+        Gets the name of the model.
+        """
         ...
 
     @property
     def nr_of_epochs(self) -> int:
+        """
+        Gets the number of epochs for training the model.
+        """
         ...
 
 class GesturePredictionCollector(Protocol):
+    """
+    Collects predictions from a gesture recognition model and provides methods to access the collected predictions.
+    """
     def add_model_prediction(self, prediction: np.ndarray) -> int | None:
         ...
 
