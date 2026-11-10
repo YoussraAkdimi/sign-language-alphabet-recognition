@@ -4,9 +4,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 import numpy as np
+import random
 
 from sklearn.model_selection import train_test_split
-from tensorflow.keras.utils import to_categorical # type: ignore
+from tensorflow.keras.utils import to_categorical, set_random_seed # type: ignore
 from tensorflow.keras.models import Model, load_model # type: ignore
 from tensorflow.keras.callbacks import ModelCheckpoint, TensorBoard, EarlyStopping # type: ignore
 from sklearn.metrics import multilabel_confusion_matrix, confusion_matrix, classification_report, accuracy_score
@@ -25,14 +26,21 @@ MODEL_PATH: Path = Path('./output_models')
 # Choose the model here
 model_factory: ModelFactory = SimpleModel()
 
+def set_seed(seed):
+    random.seed(seed)
+    np.random.seed(seed)
+    set_random_seed(seed)
+    
 def train_and_validate_model(model_factory: ModelFactory, 
                              actions: list[str],
                              train_dataset: np.ndarray,
                              train_labels: np.ndarray,
                              validation_dataset: np.ndarray,
                              validation_labels: np.ndarray,
-                             nr_of_epochs: int = 400) -> Model:
+                             nr_of_epochs: int = 400,
+                             seed: int = 42) -> Model:
 
+    set_seed(seed)
 
     x_train = train_dataset
     y_train = to_categorical(train_labels).astype(int)
