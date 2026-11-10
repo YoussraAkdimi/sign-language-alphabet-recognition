@@ -23,14 +23,4 @@ class SimpleModel(ModelFactory):
             Dense(action_length, activation="softmax"),
         ])
 
-        # model = Sequential([
-        #     Input(shape=input_shape),
-
-        #     LSTM(32, return_sequences=True),
-        #     LSTM(16),
-
-        #     Dense(16, activation="relu"),
-        #     Dense(action_length, activation="softmax")
-        # ])
-
         return model
