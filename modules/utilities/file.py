@@ -52,6 +52,8 @@ def load_dataset(root: Path,
             sequences.append(sequence)
             labels.append(action_index)
 
+    print(f"Path {root} contains {len(actions)} actions and {len(sequences)} sequences.")
+    
     return (
         np.asarray(sequences, dtype=np.float32),
         np.asarray(labels, dtype=np.int16),
