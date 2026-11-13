@@ -26,15 +26,14 @@ from tensorflow.keras.models import load_model # type: ignore
 
 DATA_PATH: Path = Path('./mp_data')
 DATA_PATH_VALIDATION: Path = Path('./mp_data_validation')
-DATA_PATH_TEST: Path = Path('./mp_data_new_test_different_idle')
+DATA_PATH_TEST: Path = Path('./mp_data_new')
 TENSORFLOW_MODEL_PATH: Path = Path('./output_models/simple_model.keras')
 ACTIONS = ["idle", "poes", "slapen", "vogel"]
 
 feature_extracter = HolisticLandmarksFeatureExtracter()
-#feature_transformer = FeatureTransformer([FeatureCentering(), FeatureWeights(5.0, 5.0, 1.0, 0.5)])
-feature_transformer = FeatureTransformer([FeatureCentering(), FeatureNormalizer(), FeatureWeights(10.0, 10.0, 2.0, 0.5)])
-feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureCentering(), FeatureWeights(10.0, 10.0, 1.0, 0.5)])
-feature_transformer = FeatureTransformer([FeatureRemoveZCoordinates()])
+
+# define the feature transformations that will be used for training, testing and validation
+feature_transformer = FeatureTransformer([FeatureRemoveLegData(), FeatureRemoveZCoordinates(), FeatureNormalizer(), FeatureCentering(), FeatureWeights(10.0, 10.0, 2.0, 0.5)])
 
 # set WhatIfMode to False to record training data, True to skip recording and just run the rest of the code
 whatIfMode = True
@@ -58,7 +57,7 @@ show_trained_data(DATA_PATH,
                  feature_transformer=feature_transformer)
 
 # train_model
-model, history = train_and_validate_model(model_factory=SimpleLSTMModelWithNoise(),
+model, history = train_and_validate_model(model_factory=SimpleModel(),
                          actions=actions,
                          train_dataset=x_train,
                          train_labels=x_train_labels,
