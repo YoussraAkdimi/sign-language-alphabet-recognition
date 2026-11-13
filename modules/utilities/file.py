@@ -22,8 +22,8 @@ def load_dataset(root: Path,
         # If the action directory is prepended with an underscore, ignore it
         if not action_path.is_dir() or action_path.name.startswith('_') or action_path.name.startswith('.'):
             continue
-        
-        action_index = len(actions) - 1
+
+        action_index = len(actions) 
         actions.append(action_path.name)
 
         sequence_paths = sorted(
