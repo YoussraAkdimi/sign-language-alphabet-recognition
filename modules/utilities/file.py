@@ -17,7 +17,7 @@ def load_dataset(root: Path,
     actions = []
 
     # First, enumerate through the directories that represent actions
-    for action_index, action_path in enumerate(sorted(root.iterdir())):
+    for action_path in sorted(root.iterdir()):
 
         # If the action directory is prepended with an underscore, ignore it
         if not action_path.is_dir() or action_path.name.startswith('_'):
@@ -53,7 +53,7 @@ def load_dataset(root: Path,
             labels.append(action_index)
 
     print(f"Path {root} contains {len(actions)} actions and {len(sequences)} sequences.")
-    
+
     return (
         np.asarray(sequences, dtype=np.float32),
         np.asarray(labels, dtype=np.int16),
