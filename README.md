@@ -1,5 +1,12 @@
 # sign-language-alphabet-recognition
-Assignment 3 for the course Key Topics in AI
+Assignment 3 for the course Key Topics in AI. 
+## Submission and access to the code
+
+The complete project is hosted on GitHub instead of being included as a ZIP file in the submission, because the source code and datasets make the project too large to submit as a single archive.
+
+To retrieve the complete project, clone the GitHub repository using the instructions under **Getting the repository** below.
+
+The repository contains the source code, datasets and Jupyter notebooks. The original `.ipynb` notebooks can be opened in Jupyter to rerun the experiments. HTML exports can be opened in a web browser to view the notebooks and their saved outputs without running the code.
 
 ## Repository
 
