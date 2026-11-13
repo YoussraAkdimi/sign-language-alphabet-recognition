@@ -20,10 +20,10 @@ def load_dataset(root: Path,
     for action_path in sorted(root.iterdir()):
 
         # If the action directory is prepended with an underscore, ignore it
-        if not action_path.is_dir() or action_path.name.startswith('_'):
+        if not action_path.is_dir() or action_path.name.startswith('_') or action_path.name.startswith('.'):
             continue
         
-        action_index = len(actions)
+        action_index = len(actions) - 1
         actions.append(action_path.name)
 
         sequence_paths = sorted(
